@@ -13,6 +13,8 @@ import dj_database_url
 import django_heroku
 from pathlib import Path
 import os
+from django.contrib.messages import constants as messages
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -27,7 +29,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -84,18 +86,15 @@ WSGI_APPLICATION = 'news_website.wsgi.application'
 
 DATABASES = {
     'default': {
-    	# 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    	# 'NAME': 'ciba',
-        
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
 
-        # 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        # 'NAME': 'nwa',
-        # 'USER': 'parth',
-        # 'PASSWORD': 'parth2000',
-        # 'HOST': 'localhost',
-        # 'PORT': '5432',
+        # 'ENGINE': os.environ.get('ENGINE'),
+        # 'NAME': os.environ.get('NAME'),
+        # 'USER': os.environ.get('USER'),
+        # 'PASSWORD': os.environ.get('PASSWORD'),
+        # 'HOST': os.environ.get('HOST'),
+        # 'PORT': os.environ.get('PORT'),
 
     }
 }
@@ -147,11 +146,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 
-# AUTHENTICATION_BACKENDS = [
-#     'users.backends.EmailAuthBackend'
-# ]
 
 EMAIL_USE_TLS = True
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
@@ -160,5 +157,16 @@ EMAIL_PORT = 587
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/media/'
+
+MESSAGE_TAGS = {
+        messages.DEBUG: 'alert-secondary',
+        messages.INFO: 'alert-info',
+        messages.SUCCESS: 'alert-success',
+        messages.WARNING: 'alert-warning',
+        messages.ERROR: 'alert-danger',
+ }
 
 django_heroku.settings(locals())

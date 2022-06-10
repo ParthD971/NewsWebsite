@@ -60,7 +60,7 @@
     {% if messages %}
     <ul class="messages p-0">
         {% for message in messages %}
-        <div class="alert alert-info" role="alert">
+        <div class="alert {{ message.tags }}" role="alert">
           {{ message }}
         </div>
         {% endfor %}
