@@ -54,11 +54,7 @@ class RegisterView(View):
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
-            print('its valid')
-            user = form.save(commit=False)
-            print('after saving')
-            user.is_active = False
-            user.save()
+            user = form.save()
 
             to_email = form.cleaned_data.get('email')
             send_email(request, user, to_email)
@@ -90,7 +86,6 @@ class ActivateEmail(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            user.first_name = user.email.split('@')[0]
             user.save()
             messages.success(request, "Thank you for your email confirmation. Now you can login your account.")
             return redirect("home")
