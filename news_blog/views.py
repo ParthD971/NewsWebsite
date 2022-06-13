@@ -1,8 +1,10 @@
 from django.shortcuts import render
-from django.http import HttpResponse
 from .models import Post
+from django.views import View
 
 
-def home(request):
-    posts = Post.objects.filter(status='ACT')
-    return render(request, 'news_blog/home.html', {'posts': posts})
+class HomeView(View):
+    def get(self, request):
+        posts = Post.objects.filter(status='ACT')
+        return render(request, 'news_blog/home.html', context={"posts": posts})
+
