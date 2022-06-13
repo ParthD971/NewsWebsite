@@ -11,12 +11,6 @@ class RegisterForm(UserCreationForm):
         help_text='Enter Email Address',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
     )
-    username = forms.CharField(
-        max_length=200,
-        required=True,
-        help_text='Enter Username',
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
-    )
     password1 = forms.CharField(
         help_text='Enter Password',
         required=True,
@@ -40,7 +34,7 @@ class RegisterForm(UserCreationForm):
         model = User
 
         fields = [
-            'username', 'email', 'password1', 'password2',
+            'email', 'password1', 'password2',
         ]
 
 
