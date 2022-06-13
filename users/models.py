@@ -16,4 +16,8 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        return self.email
+        group_name = "SuperUser"
+        grp = self.groups.first()
+        if grp:
+            group_name = grp.name
+        return group_name + ' | ' + self.first_name

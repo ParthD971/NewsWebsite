@@ -1,6 +1,5 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-# from django.contrib.auth.models import User
 from .models import CustomUser as User
 
 
@@ -26,6 +25,7 @@ class RegisterForm(UserCreationForm):
         user = super().save(commit=False)
         user.is_active = False
         user.set_password(self.cleaned_data["password1"])
+
         if commit:
             user.save()
         return user

@@ -11,6 +11,9 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib.auth.models import Group
+from .constants import user_login_success, WRONG_CREDENTIALS, INVALID_INFORMATION, ALREADY_USER_EXISTS, VERIFY_EMAIL, \
+    EMAIL_CONFIRMATION, INVALID_VERIFICATION_LINK, PASSWORD_RESET_INSTRUCTION
 
 
 class LoginView(View):
@@ -30,15 +33,15 @@ class LoginView(View):
             user = authenticate(request, email=email, password=password)
             if user is not None:
                 login(request, user)
-                messages.info(request, f"You are now logged in as {email}.")
+                messages.success(request, user_login_success(user.email))
                 return redirect("home")
-            messages.error(request, "Invalid username or password.")
+            messages.error(request, WRONG_CREDENTIALS)
             return render(
                 request=request,
                 template_name="users/login.html",
                 context={"login_form": form}
             )
-        messages.error(request, "Invalid username or password.")
+        messages.error(request, WRONG_CREDENTIALS)
         return render(
             request=request,
             template_name="users/login.html",
@@ -54,21 +57,26 @@ class RegisterView(View):
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            query = User.objects.filter(email=form.cleaned_data.get('email'))
+            if not query.exists():
+                user = form.save()
+                to_email = form.cleaned_data.get('email')
+                send_email(request, user, to_email)
+                messages.success(request, VERIFY_EMAIL)
+                return redirect("home")
 
-            to_email = form.cleaned_data.get('email')
-            send_email(request, user, to_email)
-
-            messages.success(request, "Registration successful.")
-            return redirect("home")
-        if 'User with this Email address already exists.' in form.errors['email'][:][0]:
+            # if email exists then send mail again
             to_email = request.POST.get('email')
-            user = User.objects.get(email=to_email)
+            user = query.first()
             send_email(request, user, to_email)
-            messages.error(request, "Email is Already registered, Please verify email.")
+            messages.error(request, ALREADY_USER_EXISTS)
         else:
-            messages.error(request, "Unsuccessful registration. Invalid information.")
-        return render(request=request, template_name="users/register.html", context={"register_form": form})
+            messages.error(request, INVALID_INFORMATION)
+        return render(
+            request=request,
+            template_name="users/register.html",
+            context={"register_form": form}
+        )
 
 
 def logout_request(request):
@@ -86,10 +94,12 @@ class ActivateEmail(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
+            my_group = Group.objects.get(name='Consumer')
+            my_group.user_set.add(user)
             user.save()
-            messages.success(request, "Thank you for your email confirmation. Now you can login your account.")
+            messages.success(request, EMAIL_CONFIRMATION)
             return redirect("home")
-        messages.success(request, "Activation link is invalid!")
+        messages.error(request, INVALID_VERIFICATION_LINK)
         return redirect("home")
 
 
@@ -97,8 +107,5 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     template_name = 'users/password_reset.html'
     email_template_name = 'users/password_reset_email.html'
     subject_template_name = 'users/password_reset_subject.txt'
-    success_message = "We've emailed you instructions for setting your password, " \
-                      "if an account exists with the email you entered. You should receive them shortly." \
-                      " If you don't receive an email, " \
-                      "please make sure you've entered the address you registered with, and check your spam folder."
+    success_message = PASSWORD_RESET_INSTRUCTION
     success_url = reverse_lazy('home')

@@ -10,14 +10,14 @@
     <h1>Home Page Body</h1>
     {% for post in posts %}
 
-    post.title
-    post.content
-    post.author
-    post.created_on
-    post.views
-    post.status
-    post.category
-
+    Title : {{ post.title }} <br>
+    Content : {{ post.content }} <br>
+    Author : {{ post.author }} <br>
+    Date : {{ post.created_on }} <br>
+    Views : {{ post.views }} <br>
+    Status : {{ post.status }} <br>
+    Category : {{ post.category }} <br>
+    <br>
     {% endfor %}
 </div>
 

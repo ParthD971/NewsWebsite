@@ -4,6 +4,5 @@ from .models import Post
 
 
 def home(request):
-
-    posts = Post.objects.all()
+    posts = Post.objects.filter(status='ACT')
     return render(request, 'news_blog/home.html', {'posts': posts})
