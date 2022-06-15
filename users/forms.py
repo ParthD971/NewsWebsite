@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser as User
+from validate_email_address import validate_email
 
 
 class RegisterForm(UserCreationForm):
@@ -9,6 +10,7 @@ class RegisterForm(UserCreationForm):
         required=True,
         help_text='Enter Email Address',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+        validators=[]
     )
     password1 = forms.CharField(
         help_text='Enter Password',
@@ -30,6 +32,13 @@ class RegisterForm(UserCreationForm):
             user.save()
         return user
 
+    def clean_email(self):
+        cleaned_data = self.clean()
+        email = cleaned_data.get('email')
+        if not validate_email(email, verify=True):
+            self.add_error('email', "Email not valid")
+        return email
+
     class Meta:
         model = User
 
@@ -50,6 +59,13 @@ class LoginForm(forms.Form):
         help_text='Enter Password Again',
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password Again'}),
     )
+
+    def clean_email(self):
+        cleaned_data = self.clean()
+        email = cleaned_data.get('email')
+        if not validate_email(email, verify=True):
+            self.add_error('email', "Email not valid")
+        return email
 
     class Meta:
         model = User
