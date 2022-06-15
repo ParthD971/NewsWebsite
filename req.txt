@@ -6,3 +6,4 @@ python-dotenv==0.20.0
 django-utils-six==2.0
 validate-email-address
 py3dns
+Pillow

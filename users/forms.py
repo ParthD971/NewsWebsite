@@ -10,7 +10,6 @@ class RegisterForm(UserCreationForm):
         required=True,
         help_text='Enter Email Address',
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-        validators=[]
     )
     password1 = forms.CharField(
         help_text='Enter Password',

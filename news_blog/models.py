@@ -1,11 +1,6 @@
 from django.db import models
 from users.models import CustomUser as User
-
-POST_STATUS_CHOICES = [
-        ('PEN', 'PENDING'),
-        ('ACT', 'ACTIVE'),
-        ('INACT', 'INACTIVE'),
-    ]
+from .constants import POST_STATUS_CHOICES
 
 
 class Categorie(models.Model):
@@ -13,6 +8,7 @@ class Categorie(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class Post(models.Model):
     title = models.CharField(max_length=100)
@@ -22,9 +18,11 @@ class Post(models.Model):
     views = models.IntegerField(default=0)
     status = models.CharField(max_length=5, choices=POST_STATUS_CHOICES, default='PEN')
     category = models.ForeignKey(Categorie, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='news_images/', default='default.jpg')
 
     def __str__(self):
-        return str(self.author)  + ' | ' + str(self.title) + ' | ' + str(self.category) + ' | ' + str(self.status)
+        return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
+
 
 class Notification(models.Model):
     post_id = models.ForeignKey(Post, on_delete=models.CASCADE)

@@ -1,7 +1,6 @@
 from django.contrib import admin
 from .models import Categorie, Post, Notification, Follow
-from django import forms
-
+from .constants import GROUP_EDITOR_NAME
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
@@ -12,7 +11,7 @@ class PostAdmin(admin.ModelAdmin):
         form = super().get_form(request, obj, **kwargs)
         if not request.user.is_superuser:
             group_name = request.user.groups.first().name
-            if group_name == 'Editor':
+            if group_name == GROUP_EDITOR_NAME:
                 form.base_fields['status'].disabled = True
         return form
 
@@ -23,17 +22,14 @@ class PostAdmin(admin.ModelAdmin):
             queryset = queryset.none()
         if not request.user.is_superuser:
             group_name = request.user.groups.first().name
-            if group_name == 'Editor':
+            if group_name == GROUP_EDITOR_NAME:
                 queryset = queryset.filter(author_id=request.user.id, status='PEN')
         return queryset
 
     def save_model(self, request, obj, form, change):
         if not change:
-            try:
-                obj.author = request.user
-                obj.save()
-            except AttributeError as e:
-                print('Request has no user attribute in PostAdmin.save_model method.')
+            obj.author = request.user
+            obj.save()
         else:
             obj.save()
 
