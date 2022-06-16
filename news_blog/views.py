@@ -1,11 +1,14 @@
 from django.shortcuts import render, redirect, reverse
 from .models import Post
 from django.views import View
+from django.views.generic import ListView
 from django.http import HttpResponse
 
 
-class HomeView(View):
-    def get(self, request):
-        posts = Post.objects.filter(status='ACT')
-        return render(request, 'news_blog/home.html', context={"posts": posts})
+class HomeView(ListView):
+    queryset = Post.objects.all()
+    template_name = 'news_blog/home.html'
+    context_object_name = 'posts'
 
+    def get_queryset(self):
+        return self.queryset.filter(status='ACT')

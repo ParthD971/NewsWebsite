@@ -4,6 +4,9 @@ from users.models import CustomUser as User
 from django.contrib.auth.models import Group
 from news_blog.constants import INDIAN_EXPRESS_EDITOR_EMAIL, GROUP_EDITOR_NAME, POST_TYPE_CHOICES
 from datetime import datetime
+from django.core.files import File
+import urllib.request
+import os
 
 
 
@@ -17,15 +20,18 @@ class ScraperPipeline:
                 editor.save()
                 group.user_set.add(editor)
             category = Categorie.objects.get(name=item['category'])
-            Post.objects.create(
+            post = Post.objects.create(
                 title=item['title'],
                 author=editor,
                 content=item['content'],
                 created_on=datetime.strptime(item['date'][:-3].strip(), '%B %d, %Y  %I:%M:%S').date(),
                 category=category,
-                image=item['image_url'],
                 type=POST_TYPE_CHOICES[0][0]
             )
+            result = urllib.request.urlretrieve(item['image_url'])
+            if result:
+                post.image.save(os.path.basename(item['image_url']), File(open(result[0], 'rb')))
+                post.save()
             print("\n")
             print(item)
         except Categorie.DoesNotExist as e:
@@ -34,6 +40,6 @@ class ScraperPipeline:
             print(item)
         except Exception as e:
             print("\n")
-            print("\nFailed to load quote, Reason For Failure:{}".format(e))
+            print("\nFailed to load news, Reason For Failure:{}".format(e))
             print(item)
         return item

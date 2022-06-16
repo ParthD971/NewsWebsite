@@ -167,6 +167,10 @@ MESSAGE_TAGS = {
         messages.SUCCESS: 'alert-success',
         messages.WARNING: 'alert-warning',
         messages.ERROR: 'alert-danger',
- }
+}
+MAX_PROFILE_PICTURE_HEIGHT = 500
+MAX_PROFILE_PICTURE_WIDTH = 500
+MAX_PROFILE_PICTURE_DIMENSIONS = (500, 500)
+
 
 django_heroku.settings(locals())
