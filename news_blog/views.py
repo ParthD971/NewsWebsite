@@ -1,6 +1,7 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect, reverse
 from .models import Post
 from django.views import View
+from django.http import HttpResponse
 
 
 class HomeView(View):

@@ -5,7 +5,7 @@ from .constants import GROUP_EDITOR_NAME
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ("author", "title", "views", "status")
-    readonly_fields = ('views', 'author')
+    readonly_fields = ('views', 'author', 'created_on', 'type')
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -36,6 +36,5 @@ class PostAdmin(admin.ModelAdmin):
 
 # Register your models here.
 admin.site.register(Categorie)
-# admin.site.register(Post)
 admin.site.register(Notification)
 admin.site.register(Follow)
