@@ -15,6 +15,8 @@ POST_IMAGE_UPLOAD_TO = 'news_images/'
 
 # admin varible
 GROUP_EDITOR_NAME = 'Editor'
+GROUP_MANAGER_NAME = 'Manager'
+GROUP_CONSUMER_NAME = 'Consumer'
 
 #scrapy variables
 INDIAN_EXPRESS_EDITOR_EMAIL = 'fakeindianexpress@abc.com'

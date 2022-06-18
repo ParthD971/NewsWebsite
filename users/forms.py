@@ -36,11 +36,15 @@ class RegisterForm(UserCreationForm):
         email = cleaned_data.get('email')
         if not validate_email(email, verify=True):
             self.add_error('email', "Email not valid")
+
+        user = User.objects.filter(email=email)
+        if user.exists():
+            self.add_error('email', "Email is Blocked")
+
         return email
 
     class Meta:
         model = User
-
         fields = [
             'email', 'password1', 'password2',
         ]
@@ -64,6 +68,11 @@ class LoginForm(forms.Form):
         email = cleaned_data.get('email')
         if not validate_email(email, verify=True):
             self.add_error('email', "Email not valid")
+
+        user = User.objects.filter(email=email)
+        if user.exists():
+            self.add_error('email', "Email is Blocked")
+
         return email
 
     class Meta:
@@ -74,14 +83,12 @@ class LoginForm(forms.Form):
 
 
 class CustomUserCreationForm(UserCreationForm):
-
     class Meta:
         model = User
         fields = ('email',)
 
 
 class CustomUserChangeForm(UserChangeForm):
-
     class Meta:
         model = User
         fields = ('email',)

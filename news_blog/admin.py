@@ -1,11 +1,15 @@
 from django.contrib import admin
 from .models import Categorie, Post, Notification, Follow
 from .constants import GROUP_EDITOR_NAME
+from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
+
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    # list_display = ("author", "title", "views", "status")
+    list_display = ("author", "title", "views", "status")
     readonly_fields = ('views', 'author', 'created_on', 'type')
+    list_filter = (PostStatusFilter, PostEditorFilter)
+    search_fields = ('title', 'content')
 
     def get_form(self, request, obj=None, change=False, **kwargs):
         form = super().get_form(request, obj, **kwargs)
@@ -14,7 +18,6 @@ class PostAdmin(admin.ModelAdmin):
             if group_name == GROUP_EDITOR_NAME:
                 form.base_fields['status'].disabled = True
         return form
-
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
@@ -34,7 +37,15 @@ class PostAdmin(admin.ModelAdmin):
             obj.save()
 
 
-# Register your models here.
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Follow)
+class FollowAdmin(admin.ModelAdmin):
+    list_filter = (FollowFilter,)
+
+
 admin.site.register(Categorie)
-admin.site.register(Notification)
-admin.site.register(Follow)
+admin.site.site_header = 'News Website Admin Panel'

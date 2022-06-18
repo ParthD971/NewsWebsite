@@ -1,16 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
+from .filters import UserBlockedFilter, UserTypeFilter
 
 
+@admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
     add_form = CustomUserCreationForm
     form = CustomUserChangeForm
     model = CustomUser
     list_display = ('email', 'is_staff', 'is_active',)
-    list_filter = ('email', 'is_staff', 'is_active',)
+    list_filter = (UserBlockedFilter, UserTypeFilter, 'is_staff', 'is_active')
+
     fieldsets = (
         (None, {'fields': ('email', 'password', 'is_blocked')}),
         ("Personal info", {"fields": ("first_name", "last_name")}),
@@ -25,5 +27,18 @@ class CustomUserAdmin(UserAdmin):
     search_fields = ('email',)
     ordering = ('email',)
 
+    def get_form(self, request, obj=None, change=False, **kwargs):
+        print(request.user.is_superuser)
+        if not request.user.is_superuser:
+            print('>>>>>')
+            self.fieldsets = (
+                (None, {'fields': ('email', 'password', 'is_blocked')}),
+                ("Personal info", {"fields": ("first_name", "last_name")}),
+                ('Permissions', {'fields': ('is_staff', 'is_active', "is_superuser", "groups",)}),
+            )
+            self.readonly_fields = (
+                'first_name', 'last_name', 'email', 'is_active', 'is_staff', 'is_superuser', 'groups'
+            )
+        form = super().get_form(request, obj, **kwargs)
+        return form
 
-admin.site.register(CustomUser, CustomUserAdmin)

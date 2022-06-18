@@ -32,8 +32,8 @@ class Post(models.Model):
     type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
 
     def __str__(self):
-        # return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
-        return self.image.url
+        return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
+        # return self.image.url
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         img = Image.open(self.image)
@@ -54,10 +54,17 @@ class Post(models.Model):
 
 
 class Notification(models.Model):
-    post_id = models.ForeignKey(Post, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return ' -> '.join([str(self.post), self.user.first_name])
 
 
 class Follow(models.Model):
-    author_id = models.ForeignKey(User, related_name='editor', on_delete=models.CASCADE)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, related_name='editor', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return ' -> '.join([self.user.first_name, self.author.first_name])
+
