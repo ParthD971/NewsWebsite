@@ -7,3 +7,6 @@ django-utils-six==2.0
 validate-email-address
 py3dns
 Pillow
+whitenoise
+Scrapy
+gunicorn
