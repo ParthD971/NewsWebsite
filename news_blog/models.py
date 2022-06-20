@@ -6,6 +6,11 @@ from PIL import Image
 from io import BytesIO
 from django.core.files.uploadedfile import InMemoryUploadedFile
 import sys
+from datetime import date
+import requests
+import urllib.request
+import os
+from django.core.files import File
 
 
 class Categorie(models.Model):
@@ -36,7 +41,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200, unique=True, blank=False, null=False)
     author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     content = models.TextField(blank=False, null=False)
-    created_on = models.DateField(auto_now_add=True)
+    created_on = models.DateField(default=date.today)
     views = models.IntegerField(default=0, blank=False, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.SET_DEFAULT, default=None, null=False)
     category = models.ForeignKey(Categorie, on_delete=models.SET_DEFAULT, default=None, null=False)
@@ -46,23 +51,6 @@ class Post(models.Model):
 
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
-
-    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
-        img = Image.open(self.image)
-        output = BytesIO()
-        if any([img.width > settings.MAX_PROFILE_PICTURE_WIDTH, img.height > settings.MAX_PROFILE_PICTURE_HEIGHT]):
-            img.thumbnail(settings.MAX_PROFILE_PICTURE_DIMENSIONS, Image.ANTIALIAS)
-            img.save(output, format='JPEG', quality=100)
-            output.seek(0)
-            self.image = InMemoryUploadedFile(
-                output,
-                'ImageField',
-                "%s.jpg" % self.image.name.split('.')[0],
-                'image/jpeg',
-                sys.getsizeof(output),
-                None
-            )
-        super().save()
 
 
 class PostRecycle(models.Model):

@@ -1,6 +1,7 @@
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import gettext_lazy as _
-from .constants import GROUP_EDITOR_NAME, POST_STATUS_CHOICES
+from .constants import GROUP_EDITOR_NAME
+from .models import PostStatus
 from django.contrib.auth.models import Group
 
 
@@ -17,11 +18,14 @@ class PostStatusFilter(SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'is_active':
-            return queryset.filter(status=POST_STATUS_CHOICES[1][0])
+            status = PostStatus.objects.get('active')
+            return queryset.filter(status=status)
         elif self.value() == 'is_pending':
-            return queryset.filter(status=POST_STATUS_CHOICES[0][0])
+            status = PostStatus.objects.get('pending')
+            return queryset.filter(status=status)
         elif self.value() == 'is_inactive':
-            return queryset.filter(status=POST_STATUS_CHOICES[2][0])
+            status = PostStatus.objects.get('inactive')
+            return queryset.filter(status=status)
         return queryset
 
 

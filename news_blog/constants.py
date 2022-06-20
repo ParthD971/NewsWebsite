@@ -1,9 +1,9 @@
 # models variable
-POST_STATUS_CHOICES = [
-    ('PEN', 'PENDING'),
-    ('ACT', 'ACTIVE'),
-    ('INACT', 'INACTIVE'),
-]
+# POST_STATUS_CHOICES = [
+#     ('PEN', 'PENDING'),
+#     ('ACT', 'ACTIVE'),
+#     ('INACT', 'INACTIVE'),
+# ]
 
 POST_TYPE_CHOICES = [
     ("SCRAPED", "SCRAPED"),
@@ -17,6 +17,3 @@ POST_IMAGE_UPLOAD_TO = 'news_images/'
 GROUP_EDITOR_NAME = 'Editor'
 GROUP_MANAGER_NAME = 'Manager'
 GROUP_CONSUMER_NAME = 'Consumer'
-
-#scrapy variables
-INDIAN_EXPRESS_EDITOR_EMAIL = 'fakeindianexpress@abc.com'

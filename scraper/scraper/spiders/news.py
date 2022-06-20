@@ -1,5 +1,5 @@
 import scrapy
-from datetime import datetime
+from datetime import datetime, timedelta
 from ..items import NewsPostItem
 
 
@@ -20,8 +20,12 @@ class NewsSpider(scrapy.Spider):
             item['title'] = news.css('.title a::text').get()
             item['date'] = news.css('.date::text').get()
             item['href'] = news.css('.title a::attr(href)').get()
-
-            if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %d'):
+            print('\n\n\n ')
+            print((datetime.now() - timedelta(hours=34)).strftime('%B %d'))
+            print('\n\n\n ')
+            if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %d') \
+                    and item['date'].split(',')[0].strip() != (datetime.now() - timedelta(hours=34)).strftime('%B %d'):
+            # if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %d'):
                 today_news_end = True
                 break
             request = scrapy.http.Request(

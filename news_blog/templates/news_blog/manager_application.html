@@ -1,0 +1,17 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}Application For Manager{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    {% load crispy_forms_tags %}
+    <form method = "POST">
+        {% csrf_token %}
+        {{ form|crispy }}
+    <input type = "submit" value = "Apply">
+</form>
+
+{% endblock %}
+
+{% block js %}{% endblock %}
