@@ -1,0 +1,79 @@
+[
+  {
+    "model": "news_blog.poststatus",
+    "pk": 1,
+    "fields": {
+      "name": "pending"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 2,
+    "fields": {
+      "name": "active"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 3,
+    "fields": {
+      "name": "inactive"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 4,
+    "fields": {
+      "name": "deleted"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 5,
+    "fields": {
+      "name": "inreview"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 6,
+    "fields": {
+      "name": "rejected"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 1,
+    "fields": {
+      "name": "manager request"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 2,
+    "fields": {
+      "name": "editor request"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 3,
+    "fields": {
+      "name": "post added"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 4,
+    "fields": {
+      "name": "post deleted"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 5,
+    "fields": {
+      "name": "post changed"
+    }
+  }
+]

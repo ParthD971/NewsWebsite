@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Categorie, Post, Notification, Follow
+from .models import Categorie, Post, Notification, Follow, NotificationType, PostRecycle, PostStatus
 from .constants import GROUP_EDITOR_NAME
 from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
 
@@ -48,4 +48,7 @@ class FollowAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Categorie)
+admin.site.register(PostRecycle)
+admin.site.register(NotificationType)
+admin.site.register(PostStatus)
 admin.site.site_header = 'News Website Admin Panel'

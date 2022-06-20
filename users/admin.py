@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .forms import CustomUserCreationForm, CustomUserChangeForm
-from .models import CustomUser
+from .models import CustomUser, UserType
 from .filters import UserBlockedFilter, UserTypeFilter
 
 
@@ -42,3 +42,5 @@ class CustomUserAdmin(UserAdmin):
         form = super().get_form(request, obj, **kwargs)
         return form
 
+
+admin.site.register(UserType)

@@ -1,0 +1,149 @@
+[
+  {
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+      "name": "Manager",
+      "permissions": [
+        32,
+        36,
+        40,
+        48,
+        42,
+        43,
+        44,
+        56,
+        52,
+        22,
+        24,
+        28
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+      "name": "Editor",
+      "permissions": [
+        41,
+        42,
+        43
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
+      "name": "Consumer",
+      "permissions": [
+        32,
+        36,
+        40,
+        48,
+        44,
+        56,
+        52
+      ]
+    }
+  },
+  {
+    "model": "users.usertype",
+    "pk": 1,
+    "fields": {
+      "name": "manager"
+    }
+  },
+  {
+    "model": "users.usertype",
+    "pk": 2,
+    "fields": {
+      "name": "editor"
+    }
+  },
+  {
+    "model": "users.usertype",
+    "pk": 3,
+    "fields": {
+      "name": "consumer"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 1,
+    "fields": {
+      "name": "pending"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 2,
+    "fields": {
+      "name": "active"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 3,
+    "fields": {
+      "name": "inactive"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 4,
+    "fields": {
+      "name": "deleted"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 5,
+    "fields": {
+      "name": "inreview"
+    }
+  },
+  {
+    "model": "news_blog.poststatus",
+    "pk": 6,
+    "fields": {
+      "name": "rejected"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 1,
+    "fields": {
+      "name": "manager request"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 2,
+    "fields": {
+      "name": "editor request"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 3,
+    "fields": {
+      "name": "post added"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 4,
+    "fields": {
+      "name": "post deleted"
+    }
+  },
+  {
+    "model": "news_blog.notificationtype",
+    "pk": 5,
+    "fields": {
+      "name": "post changed"
+    }
+  }
+]

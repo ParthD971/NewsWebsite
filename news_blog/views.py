@@ -10,5 +10,5 @@ class HomeView(ListView):
     template_name = 'news_blog/home.html'
     context_object_name = 'posts'
 
-    def get_queryset(self):
-        return self.queryset.filter(status='ACT')
+    # def get_queryset(self):
+    #     return self.queryset.filter(status='ACT')
