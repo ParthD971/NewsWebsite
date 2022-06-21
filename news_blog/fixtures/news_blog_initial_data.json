@@ -75,5 +75,26 @@
     "fields": {
       "name": "post changed"
     }
+  },
+  {
+    "model": "news_blog.notificationstatus",
+    "pk": 1,
+    "fields": {
+      "name": "pending"
+    }
+  },
+  {
+    "model": "news_blog.notificationstatus",
+    "pk": 2,
+    "fields": {
+      "name": "accepted"
+    }
+  },
+  {
+    "model": "news_blog.notificationstatus",
+    "pk": 3,
+    "fields": {
+      "name": "rejected"
+    }
   }
 ]

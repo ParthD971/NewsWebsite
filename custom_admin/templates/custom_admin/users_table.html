@@ -1,0 +1,31 @@
+{% extends "custom_admin/admin_panel.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+
+    {% if users %}
+        <ul>
+            {% for user in users %}
+                <li>
+                    <a href="{% url 'change_user' pk=user.id %}">
+                        {{ user.first_name }}
+                    </a>
+                    <button>
+                        <a href="{% url 'delete_user' pk=user.id %}">
+                            Delete User
+                        </a>
+                    </button>
+
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+
+        No Users
+
+    {% endif %}
+
+{% endblock %}
+
+{% block js %}{% endblock %}

@@ -5,7 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_str
 from .token import account_activation_token
-from .models import CustomUser as User
+from .models import CustomUser as User, UserType
 from .mail import send_email
 from django.views import View
 from django.urls import reverse_lazy
@@ -57,20 +57,23 @@ class RegisterView(View):
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
-            query = User.objects.filter(email=form.cleaned_data.get('email'))
-            if not query.exists():
-                user = form.save()
-                to_email = form.cleaned_data.get('email')
-                send_email(request, user, to_email)
+            try:
+                user = form.save(commit=False)
+                user.type = UserType.objects.get(name='consumer')
+                user.save()
                 messages.success(request, VERIFY_EMAIL)
+            except UserType.DoesNotExist as e:
+                messages.error(request, 'User type don\'t exists')
                 return redirect("home")
-
-            # if email exists then send mail again
-            to_email = request.POST.get('email')
-            user = query.first()
-            send_email(request, user, to_email)
-            messages.error(request, ALREADY_USER_EXISTS)
         else:
+            email = form.cleaned_data.get('email')
+            query = None
+            if email:
+                query = User.objects.filter(email=email)
+            if query and query.exists():
+                to_email = email
+                user = query.first()
+                send_email(request, user, to_email)
             messages.error(request, INVALID_INFORMATION)
         return render(
             request=request,

@@ -3,7 +3,7 @@ def user_login_success(email):
     return f"You are now logged in as {email}."
 
 
-WRONG_CREDENTIALS = "Invalid username or password."
+WRONG_CREDENTIALS = "Invalid email or password."
 INVALID_INFORMATION = "Unsuccessful registration due to invalid information."
 ALREADY_USER_EXISTS = "Email is Already registered, Please verify email."
 VERIFY_EMAIL = "Check Email for verification."

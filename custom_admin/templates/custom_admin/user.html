@@ -1,0 +1,26 @@
+{% extends "custom_admin/admin_panel.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    {% load crispy_forms_tags %}
+    <div class="container my-3">
+        <form method = "POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+        </form>
+        {% if user_id %}
+            <button>
+                <a href="{% url 'change_user' pk=user_id %}">
+                    Change
+                </a>
+                <a href="{% url 'delete_user' pk=user_id %}">
+                    Delete
+                </a>
+            </button>
+        {% endif %}
+    </div>
+
+{% endblock %}
+
+{% block js %}{% endblock %}

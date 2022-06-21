@@ -1,0 +1,29 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}Application For Editor{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    {% load crispy_forms_tags %}
+    <div class="container my-3">
+        <form method = "POST">
+            {% csrf_token %}
+            <h5> Terms and Condition </h5>
+            <p>
+                You must read all roles before agreeing to be an editor, and only then, if you are able to fulfil all obligations, may you apply to be an editor:
+                <ul>
+                    <li>You must write news articles.</li>
+                    <li>News must adhere to news rules and must not break any laws.</li>
+                    <li>You have the power to view Pending and Rejected News and to update or remove Pending or Rejected News as you see fit.</li>
+                    <li>Within a 7-day window, erased news can be recovered.</li>
+                </ul>
+            </p>
+            {{ form|crispy }}
+            <input type = "submit" value = "Apply">
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block js %}{% endblock %}

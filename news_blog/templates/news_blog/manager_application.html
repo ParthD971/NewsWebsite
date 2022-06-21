@@ -6,11 +6,25 @@
 
 {% block body %}
     {% load crispy_forms_tags %}
-    <form method = "POST">
-        {% csrf_token %}
-        {{ form|crispy }}
-    <input type = "submit" value = "Apply">
-</form>
+    <div class="container my-3">
+        <form method = "POST">
+            {% csrf_token %}
+            <h5> Terms and Condition </h5>
+            <p>
+                You must read all roles before agreeing to be a manager, and only then, if you are able to fulfil all obligations, may you apply to be a manager:
+                <ul>
+                    <li>Daily news approval is required.</li>
+                    <li>The authorised news must adhere to the news rules and not break any laws.</li>
+                    <li>If necessary, you can prevent users.</li>
+                    <li>You are permitted to view tables for users, posts, notifications, followers, and other data.</li>
+                    <li>You have the power to modify or remove news based on circumstances.</li>
+                    <li>Within a 7-day window, erased news can be recovered.</li>
+                </ul>
+            </p>
+            {{ form|crispy }}
+            <input type = "submit" value = "Apply">
+        </form>
+    </div>
 
 {% endblock %}
 

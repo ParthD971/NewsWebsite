@@ -1,9 +1,11 @@
-from .models import Post
+from .models import Post, ApplicationNotification, NotificationStatus, NotificationType
 from django.views.generic import ListView
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
 from .forms import ManagerApplicationForm, EditorApplicationForm
-from django.shortcuts import reverse
+from django.urls import reverse_lazy
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 
 
 class HomeView(ListView):
@@ -26,12 +28,51 @@ class HomeView(ListView):
         return context
 
 
-class ManagerApplicationView(FormView):
+# login required
+class ManagerApplicationView(SuccessMessageMixin, FormView):
     template_name = 'news_blog/manager_application.html'
     form_class = ManagerApplicationForm
-    # success_url = reverse('home')
-    success_url = '/'
+    success_url = reverse_lazy('home')
 
     def form_valid(self, form):
-        print(form.cleaned_data)
+        if form.cleaned_data.get('check'):
+            try:
+                current_user = self.request.user
+                notification_type = NotificationType.objects.get(name='manager request')
+                status = NotificationStatus.objects.get(name='pending')
+                application_notification = ApplicationNotification(user=current_user, type=notification_type, status=status)
+                application_notification.save()
+                messages.success(self.request, 'Application for manager submitted.')
+            except NotificationType.DoesNotExist as e:
+                messages.error(self.request, 'NotificationType not exists: ' + e)
+            except NotificationStatus.DoesNotExist as e:
+                messages.error(self.request, 'NotificationStatus not exists: ' + e)
+        else:
+            messages.error(self.request, 'Form not valid')
         return super().form_valid(form)
+
+
+# login required
+class EditorApplicationView(SuccessMessageMixin, FormView):
+    template_name = 'news_blog/editor_application.html'
+    form_class = EditorApplicationForm
+    success_url = reverse_lazy('home')
+
+    def form_valid(self, form):
+        if form.cleaned_data.get('check'):
+            try:
+                current_user = self.request.user
+                notification_type = NotificationType.objects.get(name='editor request')
+                status = NotificationStatus.objects.get(name='pending')
+                application_notification = ApplicationNotification(user=current_user, type=notification_type, status=status)
+                application_notification.save()
+                messages.success(self.request, 'Application for editor submitted.')
+            except NotificationType.DoesNotExist as e:
+                messages.error(self.request, 'NotificationType not exists: ' + e)
+            except NotificationStatus.DoesNotExist as e:
+                messages.error(self.request, 'NotificationStatus not exists: ' + e)
+        else:
+            messages.error(self.request, 'Form not valid')
+        return super().form_valid(form)
+
+

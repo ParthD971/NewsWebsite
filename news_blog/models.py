@@ -1,16 +1,7 @@
 from django.db import models
 from users.models import CustomUser as User
 from .constants import POST_TYPE_CHOICES, POST_IMAGE_UPLOAD_TO, DEFAULT_IMAGE_PATH
-from django.conf import settings
-from PIL import Image
-from io import BytesIO
-from django.core.files.uploadedfile import InMemoryUploadedFile
-import sys
 from datetime import date
-import requests
-import urllib.request
-import os
-from django.core.files import File
 
 
 class Categorie(models.Model):
@@ -71,15 +62,37 @@ class NotificationType(models.Model):
         return self.name
 
 
-class Notification(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, default=None, null=True)
+class PostNotification(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, default=None)
     # User : Person who will receive notification
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     seen = models.BooleanField(default=False)
-    type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None, null=False)
+    type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
 
     def __str__(self):
         return ' -> '.join([str(self.post), self.user.first_name])
+
+
+class NotificationStatus(models.Model):
+    name = models.CharField(max_length=20, unique=True, blank=False, null=False)
+
+    # saves in lower-case
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.name = self.name.lower()
+        super(NotificationStatus, self).save()
+
+    def __str__(self):
+        return self.name
+
+
+class ApplicationNotification(models.Model):
+    # User : Person who will send notification
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
+    status = models.ForeignKey(NotificationStatus, on_delete=models.SET_DEFAULT, default=None, null=False)
+
+    def __str__(self):
+        return self.user.first_name
 
 
 class Follow(models.Model):
