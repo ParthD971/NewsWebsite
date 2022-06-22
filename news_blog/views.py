@@ -36,6 +36,7 @@ class ManagerApplicationView(SuccessMessageMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(ManagerApplicationView, self).get_form_kwargs()
+        print(kwargs)
         kwargs['request'] = self.request
         return kwargs
 

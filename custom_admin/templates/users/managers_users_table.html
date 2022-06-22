@@ -4,18 +4,19 @@
 
 {% block body %}
 <div class="container my-3">
-    {% if posts %}
+    {% if users %}
         <ul>
-            {% for post in posts %}
+            {% for user in users %}
                 <li>
-                    <a href="{% url 'managers_change_news_post' pk=post.id %}">
-                        {{ post }}
+                    <a href="{% url 'managers_change_user' pk=user.id %}">
+                        {{ user.first_name }}
                     </a>
                 </li>
             {% endfor %}
         </ul>
+
         {% if page_obj.has_previous %}
-            <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.previous_page_number }}">
+            <a href="{% url 'managers_users_table' %}?page={{ page_obj.previous_page_number }}">
                 Previous Page
             </a>
         {% endif%}
@@ -24,7 +25,7 @@
                 {{page_number}}
             {% else %}
                 <a
-                    href="{% url 'managers_news_posts_table' %}?page={{ page_number }}"
+                    href="{% url 'managers_users_table' %}?page={{ page_number }}"
                     class="{% if page_number == page_obj.number %}current{% endif %}"
                 >
                     {{ page_number }}
@@ -38,7 +39,7 @@
         {% endif%}
     {% else %}
 
-        No News Posts
+        No Users
 
     {% endif %}
 </div>

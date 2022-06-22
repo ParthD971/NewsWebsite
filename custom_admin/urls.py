@@ -15,6 +15,13 @@ urlpatterns = [
     path('manager-panel/news-posts-table/', views.ManagersPostsListView.as_view(), name='managers_news_posts_table'),
     path('manager-panel/news-posts-table/change-news-post/<pk>/', views.ManagersPostUpdateView.as_view(), name='managers_change_news_post'),
 
+    path('manager-panel/categories-table/', views.CategoryListView.as_view(), name='categories_table'),
+    path('manager-panel/categories-table/add-category/', views.CategoryCreateView.as_view(), name='add_category'),
+    path('manager-panel/categories-table/change-category/<pk>/', views.CategoryUpdateView.as_view(), name='change_category'),
+
+    path('manager-panel/users-table/', views.ManagersUsersListView.as_view(), name='managers_users_table'),
+    path('manager-panel/users-table/change-user/<pk>/', views.ManagersUserUpdateView.as_view(), name='managers_change_user'),
+
     path('editor-panel/', views.EditorPanel.as_view(), name='editor_panel'),
     path('editor-panel/news-posts-table/', views.EditorsPostsListView.as_view(), name='editors_news_posts_table'),
     path('editor-panel/news-posts-table/add-news-post/', views.PostsCreateView.as_view(), name='add_news_post'),

@@ -1,0 +1,28 @@
+{% extends "custom_admin/manager_panel.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+    <a href="{% url 'add_category' %}">
+        <p>Add Category</p>
+    </a>
+    {% if categories %}
+        <ul>
+            {% for cat in categories %}
+                <li>
+                    <a href="{% url 'change_category' pk=cat.id %}">
+                        {{ cat.name }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+
+        No Categories
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}{% endblock %}
