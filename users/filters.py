@@ -24,7 +24,7 @@ class UserBlockedFilter(SimpleListFilter):
 
 class UserTypeFilter(SimpleListFilter):
     title = _('User Type')
-    parameter_name = 'type'
+    parameter_name = 'user_type'
 
     def lookups(self, request, model_admin):
         return (

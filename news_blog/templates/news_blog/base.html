@@ -27,6 +27,8 @@
                 <li class="nav-item">
                   <a class="nav-link active" aria-current="page" href="{% url 'admin_panel' %}">Admin Panel</a>
                 </li>
+              {% elif user.is_staff %}
+                    {{ user.user_type }}
               {% endif %}
 
 
@@ -46,7 +48,7 @@
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" aria-current="page" href="#" id="UserDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">Hello, {{ user.first_name }}</a>
                           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-light" aria-labelledby="UserDropdownMenuLink">
-{#                            <li><a class="dropdown-item" href="#">Action</a></li>#}
+
                             <li><a class="dropdown-item" aria-current="page" href="{% url 'logout' %}">Logout</a></li>
 
                               {% if not user.is_staff %}

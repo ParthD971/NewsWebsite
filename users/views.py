@@ -59,12 +59,16 @@ class RegisterView(View):
         if form.is_valid():
             try:
                 user = form.save(commit=False)
-                user.type = UserType.objects.get(name='consumer')
+                user.user_type = UserType.objects.get(name='consumer')
                 user.save()
+
+                to_email = user.email
+                send_email(request, user, to_email)
+
                 messages.success(request, VERIFY_EMAIL)
             except UserType.DoesNotExist as e:
                 messages.error(request, 'User type don\'t exists')
-                return redirect("home")
+            return redirect("home")
         else:
             email = form.cleaned_data.get('email')
             query = None
@@ -97,7 +101,7 @@ class ActivateEmail(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            my_group = Group.objects.get(name='Consumer')
+            my_group = Group.objects.get(name='consumer')
             my_group.user_set.add(user)
             user.save()
             messages.success(request, EMAIL_CONFIRMATION)

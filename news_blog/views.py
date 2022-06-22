@@ -34,13 +34,18 @@ class ManagerApplicationView(SuccessMessageMixin, FormView):
     form_class = ManagerApplicationForm
     success_url = reverse_lazy('home')
 
+    def get_form_kwargs(self):
+        kwargs = super(ManagerApplicationView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def form_valid(self, form):
         if form.cleaned_data.get('check'):
             try:
                 current_user = self.request.user
                 notification_type = NotificationType.objects.get(name='manager request')
                 status = NotificationStatus.objects.get(name='pending')
-                application_notification = ApplicationNotification(user=current_user, type=notification_type, status=status)
+                application_notification = ApplicationNotification(user=current_user, notification_type=notification_type, status=status)
                 application_notification.save()
                 messages.success(self.request, 'Application for manager submitted.')
             except NotificationType.DoesNotExist as e:
@@ -58,13 +63,18 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
     form_class = EditorApplicationForm
     success_url = reverse_lazy('home')
 
+    def get_form_kwargs(self):
+        kwargs = super(EditorApplicationView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def form_valid(self, form):
         if form.cleaned_data.get('check'):
             try:
                 current_user = self.request.user
                 notification_type = NotificationType.objects.get(name='editor request')
                 status = NotificationStatus.objects.get(name='pending')
-                application_notification = ApplicationNotification(user=current_user, type=notification_type, status=status)
+                application_notification = ApplicationNotification(user=current_user, notification_type=notification_type, status=status)
                 application_notification.save()
                 messages.success(self.request, 'Application for editor submitted.')
             except NotificationType.DoesNotExist as e:

@@ -21,7 +21,7 @@ class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(_('email address'), unique=True)
     is_blocked = models.BooleanField(default=False)
-    type = models.ForeignKey(UserType, on_delete=models.SET_DEFAULT, default=None, null=True)
+    user_type = models.ForeignKey(UserType, on_delete=models.SET_DEFAULT, default=None, null=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

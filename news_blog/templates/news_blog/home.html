@@ -7,6 +7,7 @@
 {% block body %}
 
 <div class="container my-3">
+{% if posts %}
     {% for post in posts %}
         <div class="card mb-3" style="max-width: 90%;">
           <div class="row g-0">
@@ -45,7 +46,11 @@
             Next Page
         </a>
     {% endif%}
+{% else %}
 
+    No Posts
+
+{% endif %}
 </div>
 
 

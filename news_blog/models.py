@@ -38,7 +38,7 @@ class Post(models.Model):
     category = models.ForeignKey(Categorie, on_delete=models.SET_DEFAULT, default=None, null=False)
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
-    type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
+    post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
 
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
@@ -67,7 +67,7 @@ class PostNotification(models.Model):
     # User : Person who will receive notification
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     seen = models.BooleanField(default=False)
-    type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
+    notification_type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
 
     def __str__(self):
         return ' -> '.join([str(self.post), self.user.first_name])
@@ -88,11 +88,11 @@ class NotificationStatus(models.Model):
 class ApplicationNotification(models.Model):
     # User : Person who will send notification
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
+    notification_type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
     status = models.ForeignKey(NotificationStatus, on_delete=models.SET_DEFAULT, default=None, null=False)
 
     def __str__(self):
-        return self.user.first_name
+        return ' | '.join([self.user.first_name, self.status.name, self.notification_type.name])
 
 
 class Follow(models.Model):

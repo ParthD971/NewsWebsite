@@ -6,23 +6,12 @@
 {% endblock %}
 
 {% block body %}
-
-    <ul>
-        <li><a href="{% url 'users_table' %}">Users</a></li>
-        <li>Users Type</li>
-        <hr>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-        <li>Users</li>
-
-    </ul>
-
+    <div class="container my-3">
+        <ul>
+{#            <li><a href="{% url 'users_table' %}">Users</a></li>#}
+            <li><a href="{% url 'application_notification_table' %}">Application Notification</a></li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block js %}{% endblock %}

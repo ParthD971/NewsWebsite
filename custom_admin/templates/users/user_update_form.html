@@ -7,9 +7,8 @@
         {% load crispy_forms_tags %}
         <form method = "POST">
             {% csrf_token %}
-            <p>Are you sure you want to delete "{{ object.first_name }}"?</p>
             {{ form|crispy }}
-             <input type="submit" value="Confirm">
+            <input type="submit" value="Save">
         </form>
     </div>
 {% endblock %}

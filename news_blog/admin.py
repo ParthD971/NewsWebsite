@@ -8,7 +8,7 @@ from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
     list_display = ("author", "title", "views", "status")
-    readonly_fields = ('views', 'author', 'created_on', 'type')
+    readonly_fields = ('views', 'author', 'created_on', 'post_type')
     list_filter = (PostStatusFilter, PostEditorFilter)
     search_fields = ('title', 'content')
 
