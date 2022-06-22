@@ -4,9 +4,10 @@ from django.views.generic import ListView, View
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from django.urls import reverse_lazy
 from django.contrib import messages
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import Group
-from news_blog.models import ApplicationNotification, NotificationStatus
+from news_blog.models import ApplicationNotification, Post, PostStatus
+from django.db.models import Q
 
 
 # login required and must be admin superuser
@@ -21,7 +22,7 @@ class AdminPanel(View):
 
 class UsersListView(ListView):
     model = User
-    template_name = 'custom_admin/users_table.html'
+    template_name = 'users/users_table.html'
     context_object_name = 'users'
 
     def get_queryset(self):
@@ -53,7 +54,7 @@ class UserUpdateView(UpdateView):
 
 class ApplicationNotificationListView(ListView):
     model = ApplicationNotification
-    template_name = 'custom_admin/application_notification_table.html'
+    template_name = 'users/application_notification_table.html'
     context_object_name = 'notifications'
 
     def get_queryset(self):
@@ -82,3 +83,75 @@ class ApplicationNotificationUpdateView(UpdateView):
             user.is_staff = True
             user.save()
         return super(ApplicationNotificationUpdateView, self).form_valid(form)
+
+
+class EditorPanel(View):
+    def get(self, request):
+        return render(
+            request=request,
+            template_name="custom_admin/editor_panel.html",
+            context={}
+        )
+
+
+class EditorsPostsListView(ListView):
+    model = Post
+    template_name = 'news_blog/editors_posts_table.html'
+    context_object_name = 'posts'
+
+    def get_queryset(self):
+        return Post.objects.filter(Q(status__name='pending') | Q(status__name='rejected'), author=self.request.user)
+
+
+class PostsCreateView(CreateView):
+    model = Post
+    template_name = 'news_blog/create_post_form.html'
+    fields = ['title', 'content', 'category', 'image']
+    success_url = reverse_lazy('news_posts_table')
+
+    def form_valid(self, form):
+        post_obj = form.instance
+        post_obj.author = self.request.user
+        post_obj.status = PostStatus.objects.get(name='pending')
+        # post_obj.post_type = default set to Manual
+        # if image is updated then remove old image
+        return super(PostsCreateView, self).form_valid(form)
+
+
+class EditorsPostUpdateView(UpdateView):
+    model = Post
+    fields = ['title', 'content', 'category', 'image']
+    success_url = reverse_lazy('editors_news_posts_table')
+    template_name = 'news_blog/post_update_form.html'
+
+    def form_valid(self, form):
+        post_obj = form.instance
+        # if image is updated then remove old image
+        return super(EditorsPostUpdateView, self).form_valid(form)
+
+class ManagerPanel(View):
+    def get(self, request):
+        return render(
+            request=request,
+            template_name="custom_admin/manager_panel.html",
+            context={}
+        )
+
+
+class ManagersPostsListView(ListView):
+    model = Post
+    template_name = 'news_blog/managers_posts_table.html'
+    context_object_name = 'posts'
+
+
+class ManagersPostUpdateView(UpdateView):
+    model = Post
+    fields = ['title', 'content', 'category', 'image', 'status']
+    success_url = reverse_lazy('managers_news_posts_table')
+    template_name = 'news_blog/post_update_form.html'
+
+    def form_valid(self, form):
+        post_obj = form.instance
+        # if image is updated then remove old image
+        return super(ManagersPostUpdateView, self).form_valid(form)
+

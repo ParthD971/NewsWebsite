@@ -28,7 +28,15 @@
                   <a class="nav-link active" aria-current="page" href="{% url 'admin_panel' %}">Admin Panel</a>
                 </li>
               {% elif user.is_staff %}
-                    {{ user.user_type }}
+                    {% if user.user_type.name == 'manager' %}
+                        <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="{% url 'manager_panel' %}">Manager Panel</a>
+                        </li>
+                    {% elif user.user_type.name == 'editor' %}
+                        <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="{% url 'editor_panel' %}">Editor Panel</a>
+                        </li>
+                    {% endif %}
               {% endif %}
 
 

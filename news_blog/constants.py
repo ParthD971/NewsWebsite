@@ -14,6 +14,6 @@ DEFAULT_IMAGE_PATH = 'news_images/default.jpg'
 POST_IMAGE_UPLOAD_TO = 'news_images/'
 
 # admin varible
-GROUP_EDITOR_NAME = 'Editor'
-GROUP_MANAGER_NAME = 'Manager'
-GROUP_CONSUMER_NAME = 'Consumer'
+GROUP_EDITOR_NAME = 'editor'
+GROUP_MANAGER_NAME = 'manager'
+GROUP_CONSUMER_NAME = 'consumer'
