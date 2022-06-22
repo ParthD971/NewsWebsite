@@ -152,7 +152,7 @@ class ManagersPostsListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         page = self.request.GET.get('page', 1)
-        posts = Post.objects.all()
+        posts = self.get_queryset()
         paginator = self.paginator_class(posts, self.paginate_by)
 
         posts = paginator.page(page)
@@ -169,6 +169,27 @@ class ManagersPostUpdateView(UpdateView):
 
     def form_valid(self, form):
         post_obj = form.instance
+
+        # if update status
+        old_status = Post.objects.get(id=post_obj.id).status.name
+        new_status = post_obj.status.name
+
+        status_changed = old_status != new_status
+        if status_changed:
+            print('status_changed')
+            if new_status == 'active':
+                pass
+            elif new_status == 'inactive':
+                pass
+            elif new_status == 'deleted':
+                pass
+            elif new_status == 'inreview':
+                pass
+            elif new_status == 'rejected':
+                pass
+            elif new_status == 'active':
+                pass
+
         # if image is updated then remove old image
         return super(ManagersPostUpdateView, self).form_valid(form)
 
@@ -208,7 +229,7 @@ class ManagersUsersListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         page = self.request.GET.get('page', 1)
-        users = User.objects.all()
+        users = self.get_queryset()
         paginator = self.paginator_class(users, self.paginate_by)
 
         users = paginator.page(page)

@@ -19,7 +19,7 @@ class HomeView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         page = self.request.GET.get('page', 1)
-        posts = Post.objects.all()
+        posts = self.get_queryset()
         paginator = self.paginator_class(posts, self.paginate_by)
 
         posts = paginator.page(page)
