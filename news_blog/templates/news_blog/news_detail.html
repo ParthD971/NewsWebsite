@@ -1,0 +1,35 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}News Detail{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+
+    <div class="container my-3">
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <div class="post-heading">
+                    <h1>{{ post.title }}</h1>
+                    <div>
+                        <img src="{{ post.image.url }}" class="img-fluid rounded-start" alt="News Image">
+                    </div>
+
+                    <span>
+                        Posted by <a href="{% url 'author_news_list' %}?author={{ post.author.id }}">IndiaExpress</a> on {{ post.created_on }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-10 mx-auto">
+                <hr>
+                {{ post.content }}
+                <hr>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}{% endblock %}

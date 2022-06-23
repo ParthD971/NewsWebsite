@@ -2,6 +2,18 @@
 
 {% block css %}{% endblock %}
 
+
+{% block search %}
+
+    <form method="GET" class="d-flex">
+        <input class="form-control me-2" type="search" name='search' placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+
+{% endblock %}
+
+
+
 {% block body %}
 <div class="container my-3">
     <a href="{% url 'add_news_post' %}">

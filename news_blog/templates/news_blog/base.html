@@ -32,6 +32,9 @@
                         <li class="nav-item">
                           <a class="nav-link active" aria-current="page" href="{% url 'manager_panel' %}">Manager Panel</a>
                         </li>
+                        <li class="nav-item">
+                          <a class="nav-link active" aria-current="page" href="{% url 'run_scraper' %}">Scrap Data</a>
+                        </li>
                     {% elif user.user_type.name == 'editor' %}
                         <li class="nav-item">
                           <a class="nav-link active" aria-current="page" href="{% url 'editor_panel' %}">Editor Panel</a>
@@ -44,10 +47,13 @@
           <div>
             <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               <li class="nav-item">
-                <form class="d-flex">
-                  <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                  <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
+                  {% block search %}
+                    <form method="GET" action="{% url 'home' %}" class="d-flex">
+                        <input class="form-control me-2" type="search" name='search' placeholder="Search" aria-label="Search">
+                        <button class="btn btn-outline-success" type="submit">Search</button>
+                    </form>
+                  {% endblock %}
+
               </li>
               {% if user.is_authenticated %}
                 <li class="nav-item me-3">

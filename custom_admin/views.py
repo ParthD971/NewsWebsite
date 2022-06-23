@@ -6,10 +6,20 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import Group
-from news_blog.models import ApplicationNotification, Post, PostStatus, Categorie
+from news_blog.models import (
+    ApplicationNotification,
+    Post,
+    PostStatus,
+    Categorie,
+    PostNotification,
+    Follow,
+    NotificationType
+)
 from django.db.models import Q
 from news_blog.paginators import CustomPaginator
-from .forms import CategoryForm
+from .forms import CategoryForm, ManagersPostUpdateForm
+from datetime import datetime
+
 
 # login required and must be admin superuser
 class AdminPanel(View):
@@ -27,7 +37,11 @@ class UsersListView(ListView):
     context_object_name = 'users'
 
     def get_queryset(self):
-        return User.objects.filter(is_superuser=False)
+        queryset = super().get_queryset().filter(is_superuser=False)
+        search = self.request.GET.get('search', '')
+        if search.strip():
+            return queryset.filter(Q(first_name__contains=search))
+        return queryset
 
 
 class UserUpdateView(UpdateView):
@@ -47,9 +61,12 @@ class UserUpdateView(UpdateView):
 
     def form_valid(self, form):
         instance = form.save(commit=False)
-        instance.groups.clear()
-        my_group = Group.objects.get(name=instance.user_type.name)
-        my_group.user_set.add(instance)
+        old_user_obj = User.objects.get(id=instance.id)
+        if old_user_obj.user_type != instance.user_type:
+            print('-----')
+            instance.groups.clear()
+            my_group = Group.objects.get(name=instance.user_type.name)
+            my_group.user_set.add(instance)
         return super(UserUpdateView, self).form_valid(form)
 
 
@@ -59,7 +76,11 @@ class ApplicationNotificationListView(ListView):
     context_object_name = 'notifications'
 
     def get_queryset(self):
-        return ApplicationNotification.objects.filter(status__name='pending')
+        queryset = super().get_queryset().filter(status__name='pending')
+        search = self.request.GET.get('search', '')
+        if search.strip():
+            return queryset.filter(Q(user__first_name__contains=search))
+        return queryset
 
 
 class ApplicationNotificationUpdateView(UpdateView):
@@ -101,8 +122,11 @@ class EditorsPostsListView(ListView):
     context_object_name = 'posts'
 
     def get_queryset(self):
-        return Post.objects.filter(Q(status__name='pending') | Q(status__name='rejected'), author=self.request.user)
-
+        queryset = super().get_queryset().filter(Q(status__name='pending') | Q(status__name='rejected'), author=self.request.user)
+        search = self.request.GET.get('search', '')
+        if search.strip():
+            return queryset.filter(Q(title__contains=search) | Q(content__contains=search))
+        return queryset
 
 class PostsCreateView(CreateView):
     model = Post
@@ -151,6 +175,8 @@ class ManagersPostsListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # context for pagination
         page = self.request.GET.get('page', 1)
         posts = self.get_queryset()
         paginator = self.paginator_class(posts, self.paginate_by)
@@ -158,17 +184,50 @@ class ManagersPostsListView(ListView):
         posts = paginator.page(page)
         posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
         context['page_obj'] = posts
+
+        # context for filters
+        context['categories'] = Categorie.objects.all()
+        context['statuses'] = PostStatus.objects.all().exclude(Q(name='rejected') | Q(name='deleted'))
+
         return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset().exclude(Q(status__name='rejected') | Q(status__name='deleted'))
+        search = self.request.GET.get('search', '')
+        created_on = self.request.GET.get('created_on', '').strip()
+        category = self.request.GET.get('category', '').strip()
+        status = self.request.GET.get('status', '').strip()
+
+        if created_on:
+            created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
+            queryset = queryset.filter(created_on=created_on)
+
+        if category:
+            queryset = queryset.filter(category__name=category)
+
+        if status:
+            queryset = queryset.filter(status__name=status)
+
+        if search:
+            queryset = queryset.filter(Q(title__contains=search) | Q(content__contains=search))
+        return queryset
 
 
 class ManagersPostUpdateView(UpdateView):
     model = Post
-    fields = ['title', 'content', 'category', 'image', 'status']
+    # fields = ['title', 'content', 'category', 'image', 'status']
+    form_class = ManagersPostUpdateForm
     success_url = reverse_lazy('managers_news_posts_table')
     template_name = 'news_blog/post_update_form.html'
 
+    def get_form_kwargs(self):
+        kwargs = super(ManagersPostUpdateView, self).get_form_kwargs()
+        kwargs['object'] = self.get_object()
+        return kwargs
+
     def form_valid(self, form):
         post_obj = form.instance
+        redirect_url = super(ManagersPostUpdateView, self).form_valid(form)
 
         # if update status
         old_status = Post.objects.get(id=post_obj.id).status.name
@@ -176,28 +235,61 @@ class ManagersPostUpdateView(UpdateView):
 
         status_changed = old_status != new_status
         if status_changed:
-            print('status_changed')
             if new_status == 'active':
-                pass
+                if old_status == 'pending':
+                    new_post_obj = Post.objects.get(id=post_obj.id)
+                    followers = Follow.objects.select_related('user').filter(author=new_post_obj.author)
+                    notification_type = NotificationType.objects.get(name='post add')
+                    post_notifications = [
+                        PostNotification(
+                            post=new_post_obj,
+                            user=follower.user,
+                            notification_type=notification_type
+                        ) for follower in followers
+                    ]
+                    PostNotification.objects.bulk_create(post_notifications)
             elif new_status == 'inactive':
-                pass
+                if old_status == 'active':
+                    new_post_obj = Post.objects.get(id=post_obj.id)
+                    followers = Follow.objects.select_related('user').filter(author=new_post_obj.author)
+                    notification_type = NotificationType.objects.get(name='post deleted')
+                    post_notifications = [
+                        PostNotification(
+                            post=new_post_obj,
+                            user=follower.user,
+                            notification_type=notification_type
+                        ) for follower in followers
+                    ]
+                    PostNotification.objects.bulk_create(post_notifications)
+                else:
+                    print(old_status, ', Unknown Action to be Performed')
             elif new_status == 'deleted':
+                # inactive -> deleted then move to Recycle Table
                 pass
             elif new_status == 'inreview':
-                pass
+                if old_status == 'pending':
+                    pass
             elif new_status == 'rejected':
-                pass
-            elif new_status == 'active':
+                if old_status == 'pending':
+                    pass
+            elif new_status == 'pending':
                 pass
 
         # if image is updated then remove old image
-        return super(ManagersPostUpdateView, self).form_valid(form)
+        return redirect_url
 
 
 class CategoryListView(ListView):
     model = Categorie
     template_name = 'news_blog/categories_table.html'
     context_object_name = 'categories'
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        search = self.request.GET.get('search', '')
+        if search.strip():
+            return queryset.filter(Q(name__contains=search))
+        return queryset
 
 
 class CategoryCreateView(CreateView):
@@ -225,9 +317,12 @@ class ManagersUsersListView(ListView):
     context_object_name = 'users'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['id']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        # context for pagination
         page = self.request.GET.get('page', 1)
         users = self.get_queryset()
         paginator = self.paginator_class(users, self.paginate_by)
@@ -235,10 +330,35 @@ class ManagersUsersListView(ListView):
         users = paginator.page(page)
         users.adjusted_elided_pages = paginator.get_elided_page_range(page)
         context['page_obj'] = users
+
+        # context for filter
+        context['user_types'] = UserType.objects.all()
+
         return context
 
     def get_queryset(self):
-        return User.objects.filter(is_staff=False)
+        queryset = super().get_queryset().filter(is_staff=False)
+        search = self.request.GET.get('search', '')
+        blocked = self.request.GET.get('blocked', '')
+        staff = self.request.GET.get('staff', '')
+        active = self.request.GET.get('active', '')
+
+        if blocked:
+            blocked = blocked == 'True'
+            queryset = queryset.filter(is_blocked=blocked)
+
+        if staff:
+            staff = staff == 'True'
+            queryset = queryset.filter(is_staff=staff)
+
+        if active:
+            active = active == 'True'
+            queryset = queryset.filter(is_active=active)
+
+        if search.strip():
+            queryset = queryset.filter(first_name__contains=search)
+
+        return queryset
 
 
 class ManagersUserUpdateView(UpdateView):

@@ -1,6 +1,6 @@
 {% extends "news_blog/base.html" %}
 
-{% block title %}Home Pagee{% endblock %}
+{% block title %}{{ author }}'s News{% endblock %}
 
 {% block css %}{% endblock %}
 
@@ -27,7 +27,8 @@
         </div>
     {% endfor %}
     {% if page_obj.has_previous %}
-        <a href="{% url 'home' %}?page={{ page_obj.previous_page_number }}">
+
+        <a href="{% url 'author_news_list' %}?author={{ author.id }}&page={{ page_obj.previous_page_number }}">
             Previous Page
         </a>
     {% endif%}
@@ -36,7 +37,7 @@
             {{page_number}}
         {% else %}
             <a
-                href="{% url 'home' %}?page={{ page_number  }}"
+                href="{% url 'author_news_list' %}?author={{ author.id }}&page={{ page_number  }}"
                 class="{% if page_number == page_obj.number %}current{% endif %}"
             >
                 {{page_number}}
@@ -44,7 +45,7 @@
         {% endif %}
     {% endfor %}
     {% if page_obj.has_next %}
-        <a href="{% url 'home' %}?page={{ page_obj.next_page_number }}">
+        <a href="{% url 'author_news_list' %}?author={{ author.id }}&page={{ page_obj.next_page_number }}">
             Next Page
         </a>
     {% endif%}

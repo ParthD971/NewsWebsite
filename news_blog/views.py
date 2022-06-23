@@ -1,11 +1,13 @@
 from .models import Post, ApplicationNotification, NotificationStatus, NotificationType
-from django.views.generic import ListView
+from django.views.generic import ListView,DetailView
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
 from .forms import ManagerApplicationForm, EditorApplicationForm
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+from django.db.models import Q
+from users.models import CustomUser as User
 
 
 class HomeView(ListView):
@@ -15,6 +17,13 @@ class HomeView(ListView):
     paginate_by = 5
     paginator_class = CustomPaginator
     ordering = ['-created_on']
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(status__name='active')
+        search = self.request.GET.get('search', None)
+        if search:
+            return queryset.filter(Q(title__contains=search) | Q(content__contains=search))
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -87,3 +96,49 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
+class PostDetailView(DetailView):
+    model = Post
+    context_object_name = 'post'
+    template_name = 'news_blog/news_detail.html'
+
+
+class PostAuthorListView(ListView):
+    model = Post
+    template_name = 'news_blog/author_news_list.html'
+    context_object_name = 'posts'
+    paginate_by = 5
+    paginator_class = CustomPaginator
+    ordering = ['-created_on']
+
+    def get_queryset(self):
+        pk = self.request.GET.get('author', '')
+        queryset = super().get_queryset().filter(status__name='active')
+        if pk:
+            queryset = queryset.filter(author__id=pk)
+        else:
+            # only for IndiaExpress
+            queryset = queryset.filter(author=None)
+
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page = self.request.GET.get('page', 1)
+        posts = self.get_queryset()
+        paginator = self.paginator_class(posts, self.paginate_by)
+
+        posts = paginator.page(page)
+        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = posts
+        pk = self.request.GET.get('author', '')
+        if pk:
+            context['author'] = User.objects.get(id=pk)
+        return context
+
+import os
+from django.http import HttpResponse
+
+
+def run_scraper(request):
+    os.system('python manage.py crawl "sports"')
+    return HttpResponse('Done')
