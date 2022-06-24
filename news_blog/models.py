@@ -39,6 +39,7 @@ class Post(models.Model):
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
+    author_display_name = models.CharField(max_length=50, default=None, null=True)
 
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
@@ -48,6 +49,9 @@ class PostRecycle(models.Model):
     post = models.ForeignKey(Post, on_delete=models.SET_DEFAULT, default=None, null=False)
     recycle_created_on = models.DateField(auto_now_add=True)
     deleted_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=False)
+
+    def __str__(self):
+        return self.post.title
 
 
 class NotificationType(models.Model):

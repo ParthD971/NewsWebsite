@@ -1,0 +1,23 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block css %}{% endblock %}
+
+
+{% block body %}
+
+{% load crispy_forms_tags %}
+<div class="container">
+  <h1>Register</h1>
+	<form method="POST">
+		{% csrf_token %}
+		{{ form|crispy }}
+		<button class="btn btn-primary" type="submit">Save</button>
+	</form>
+</div>
+
+
+{% endblock %}
+
+{% block js %}{% endblock %}

@@ -16,7 +16,19 @@
                     </div>
 
                     <span>
-                        Posted by <a href="{% url 'author_news_list' %}?author={{ post.author.id }}">IndiaExpress</a> on {{ post.created_on }}
+                        Posted by
+{#                        <a href="{% url 'author_news_list' %}?author={{ post.author_display_name }}">#}
+{##}
+{#                                {{ post.author_display_name }}#}
+{##}
+{#                        </a> #}
+                        <a href="{% url 'home' %}?author={{ post.author_display_name }}">
+
+                                {{ post.author_display_name }}
+
+                        </a>
+
+                        on {{ post.created_on }}
                     </span>
                 </div>
             </div>

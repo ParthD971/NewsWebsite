@@ -20,9 +20,18 @@ class HomeView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(status__name='active')
+
+        # for serach filter
         search = self.request.GET.get('search', None)
         if search:
             return queryset.filter(Q(title__contains=search) | Q(content__contains=search))
+
+        # for author filter
+        author_display_name = self.request.GET.get('author', '')
+        if author_display_name:
+            # filter by display name
+            queryset = queryset.filter(author_display_name=author_display_name)
+
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -35,6 +44,12 @@ class HomeView(ListView):
         posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
         context['page_obj'] = posts
         return context
+
+
+class PostDetailView(DetailView):
+    model = Post
+    context_object_name = 'post'
+    template_name = 'news_blog/news_detail.html'
 
 
 # login required
@@ -96,44 +111,8 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
-class PostDetailView(DetailView):
-    model = Post
-    context_object_name = 'post'
-    template_name = 'news_blog/news_detail.html'
 
 
-class PostAuthorListView(ListView):
-    model = Post
-    template_name = 'news_blog/author_news_list.html'
-    context_object_name = 'posts'
-    paginate_by = 5
-    paginator_class = CustomPaginator
-    ordering = ['-created_on']
-
-    def get_queryset(self):
-        pk = self.request.GET.get('author', '')
-        queryset = super().get_queryset().filter(status__name='active')
-        if pk:
-            queryset = queryset.filter(author__id=pk)
-        else:
-            # only for IndiaExpress
-            queryset = queryset.filter(author=None)
-
-        return queryset
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        page = self.request.GET.get('page', 1)
-        posts = self.get_queryset()
-        paginator = self.paginator_class(posts, self.paginate_by)
-
-        posts = paginator.page(page)
-        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
-        context['page_obj'] = posts
-        pk = self.request.GET.get('author', '')
-        if pk:
-            context['author'] = User.objects.get(id=pk)
-        return context
 
 import os
 from django.http import HttpResponse

@@ -18,7 +18,8 @@ class ScraperPipeline:
                 status=status,
                 created_on=datetime.strptime(item['date'][:-3].strip(), '%B %d, %Y  %I:%M:%S').date(),
                 category=category,
-                post_type=POST_TYPE_CHOICES[0][0]  # Scrapped
+                post_type=POST_TYPE_CHOICES[0][0],  # Scrapped
+                author_display_name='IndiaExpress'
             )
 
             result = urllib.request.urlretrieve(item['image_url'])

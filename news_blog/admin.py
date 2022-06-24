@@ -43,8 +43,13 @@ class FollowAdmin(admin.ModelAdmin):
     list_filter = (FollowFilter,)
 
 
+@admin.register(PostRecycle)
+class FollowAdmin(admin.ModelAdmin):
+    fields = ['post', 'deleted_by', 'recycle_created_on']
+    readonly_fields = ['recycle_created_on']
+
 admin.site.register(Categorie)
-admin.site.register(PostRecycle)
+# admin.site.register(PostRecycle)
 admin.site.register(NotificationType)
 admin.site.register(PostStatus)
 admin.site.register(PostNotification)

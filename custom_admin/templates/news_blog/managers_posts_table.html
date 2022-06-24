@@ -14,6 +14,7 @@
 
 {% block body %}
 <div class="container my-3">
+
     <div class="row">
         <div class="col-md-10">
             {% if posts %}
@@ -92,6 +93,19 @@
                             <option value="">--</option>
                                 {% for status in statuses %}
                                     <option value="{{ status.name }}">{{ status.name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="editors">Editor</label>
+                          </div>
+                          <select name="editor" id="editors">
+                            <option value="">--</option>
+                                {% for author in authors %}
+                                    <option value="{{ author.author_display_name }}">{{ author.author_display_name }}</option>
                                 {% endfor %}
                           </select>
                       </td>

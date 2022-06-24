@@ -5,21 +5,20 @@
     {{ user.user_type|title }} Panel
 
 {% endblock %}
-
 {% block css %}{% endblock %}
+
 
 {% block body %}
     <div class="container my-3">
+        Are you sure you want to restore this post?
+
         {% load crispy_forms_tags %}
         <form method = "POST">
             {% csrf_token %}
             {{ form|crispy }}
-            <input type="submit" value="Save">
-
-            {% if user.user_type.name == 'editor' %}
-                <a href="{% url 'editors_delete_news_post' pk=object.id %}" class='btn btn-danger'>Delete</a>
-            {% endif %}
+            <input type="submit" value="Restore">
         </form>
+
 
     </div>
 {% endblock %}

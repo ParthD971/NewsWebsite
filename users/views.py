@@ -14,6 +14,8 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib.auth.models import Group
 from .constants import user_login_success, WRONG_CREDENTIALS, INVALID_INFORMATION, ALREADY_USER_EXISTS, VERIFY_EMAIL, \
     EMAIL_CONFIRMATION, INVALID_VERIFICATION_LINK, PASSWORD_RESET_INSTRUCTION
+from django.views.generic.edit import UpdateView
+from news_blog.models import Post
 
 
 class LoginView(View):
@@ -116,3 +118,21 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     subject_template_name = 'users/password_reset_subject.txt'
     success_message = PASSWORD_RESET_INSTRUCTION
     success_url = reverse_lazy('home')
+
+
+class ProfileView(UpdateView):
+    model = User
+    fields = ['first_name']
+    success_url = reverse_lazy('home')
+    template_name = 'users/profile.html'
+
+    def form_valid(self, form):
+        # save this name to author_display_name if user is editor
+        user = form.instance
+        if user.user_type.name == 'editor':
+            # change display name
+            posts = Post.objects.filter(author=user)
+            for post in posts:
+                post.author_display_name = user.first_name
+            Post.objects.bulk_update(posts, fields=['author_display_name'])
+        return super(ProfileView, self).form_valid(form)
