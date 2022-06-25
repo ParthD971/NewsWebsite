@@ -1,7 +1,7 @@
 create 3 groups with permissions
 - Manager
 - Editor
-- Consumer
+- Consumer --> Done through Fixtures
 
 create
 - media>news_images>default.jpg

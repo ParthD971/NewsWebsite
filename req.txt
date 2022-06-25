@@ -10,3 +10,5 @@ Pillow
 whitenoise
 Scrapy
 gunicorn
+boto3
+django-storages
