@@ -20,6 +20,7 @@ from django.db.models import Q
 from news_blog.paginators import CustomPaginator
 from .forms import CategoryForm, ManagersPostUpdateForm, RestoreConfirmationForm, DeleteConfirmationForm
 from datetime import datetime
+from news_blog.constants import DEFAULT_IMAGE_NAME
 
 
 # login required and must be admin superuser
@@ -195,7 +196,13 @@ class EditorsPostUpdateView(UpdateView):
     def form_valid(self, form):
         post_obj = form.instance
         post_obj.status = PostStatus.objects.get(name='pending')
+
         # if image is updated then remove old image
+        if 'image' in form.changed_data:
+            old_post_obj = Post.objects.get(id=post_obj.id)
+            if old_post_obj.image and old_post_obj.image.url.split('/')[-1] != DEFAULT_IMAGE_NAME:
+                old_post_obj.image.delete(False)
+
         return super(EditorsPostUpdateView, self).form_valid(form)
 
 
@@ -309,7 +316,8 @@ class ManagersPostUpdateView(UpdateView):
 
         if status_changed:
             if new_status == 'active':
-                if old_status == 'pending':
+                if old_status == 'pending' or old_status == 'inreview':
+                    # sending notifications
                     new_post_obj = Post.objects.get(id=post_obj.id)
                     followers = Follow.objects.select_related('user').filter(author=new_post_obj.author)
                     notification_type = NotificationType.objects.get(name='post added')
@@ -321,8 +329,6 @@ class ManagersPostUpdateView(UpdateView):
                         ) for follower in followers
                     ]
                     PostNotification.objects.bulk_create(post_notifications)
-                else:
-                    print(old_status, ', Unknown Action to be Performed')
             elif new_status == 'inactive':
                 if old_status == 'active':
                     new_post_obj = Post.objects.get(id=post_obj.id)
@@ -336,8 +342,6 @@ class ManagersPostUpdateView(UpdateView):
                         ) for follower in followers
                     ]
                     PostNotification.objects.bulk_create(post_notifications)
-                else:
-                    print(old_status, ', Unknown Action to be Performed')
             elif new_status == 'deleted':
                 # inactive -> deleted then move to Recycle Table
                 if old_status == 'inactive':
@@ -346,12 +350,9 @@ class ManagersPostUpdateView(UpdateView):
                         deleted_by=self.request.user
                     )
                     post_recycle_obj.save()
-
-                else:
-                    print(old_status, ', Unknown Action to be Performed')
-
             elif new_status == 'inreview':
                 if old_status == 'pending':
+                    # nothing to do
                     pass
             elif new_status == 'rejected':
                 if old_status == 'pending':
@@ -360,6 +361,10 @@ class ManagersPostUpdateView(UpdateView):
                 pass
 
         # if image is updated then remove old image
+        if 'image' in form.changed_data:
+            old_post_obj = Post.objects.get(id=post_obj.id)
+            if old_post_obj.image and old_post_obj.image.url.split('/')[-1] != DEFAULT_IMAGE_NAME:
+                old_post_obj.image.delete(False)
         return super(ManagersPostUpdateView, self).form_valid(form)
 
 

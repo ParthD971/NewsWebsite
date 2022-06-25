@@ -19,7 +19,7 @@ class UserType(models.Model):
 
 class CustomUser(AbstractUser):
     username = None
-    email = models.EmailField(_('email address'), unique=True)
+    email = models.EmailField(_('email address'), unique=True, null=False)
     is_blocked = models.BooleanField(default=False)
     user_type = models.ForeignKey(UserType, on_delete=models.SET_DEFAULT, default=None, null=True)
 

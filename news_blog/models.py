@@ -34,8 +34,8 @@ class Post(models.Model):
     content = models.TextField(blank=False, null=False)
     created_on = models.DateField(default=date.today)
     views = models.IntegerField(default=0, blank=False, null=False)
-    status = models.ForeignKey(PostStatus, on_delete=models.SET_DEFAULT, default=None, null=False)
-    category = models.ForeignKey(Categorie, on_delete=models.SET_DEFAULT, default=None, null=False)
+    status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
+    category = models.ForeignKey(Categorie, on_delete=models.CASCADE, null=False)
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
@@ -46,9 +46,9 @@ class Post(models.Model):
 
 
 class PostRecycle(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.SET_DEFAULT, default=None, null=False)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
     recycle_created_on = models.DateField(auto_now_add=True)
-    deleted_by = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=False)
+    deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return self.post.title
@@ -71,7 +71,7 @@ class PostNotification(models.Model):
     # User : Person who will receive notification
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     seen = models.BooleanField(default=False)
-    notification_type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
+    notification_type = models.ForeignKey(NotificationType, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return ' -> '.join([str(self.post), self.user.first_name])
@@ -92,8 +92,8 @@ class NotificationStatus(models.Model):
 class ApplicationNotification(models.Model):
     # User : Person who will send notification
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
-    notification_type = models.ForeignKey(NotificationType, on_delete=models.SET_DEFAULT, default=None)
-    status = models.ForeignKey(NotificationStatus, on_delete=models.SET_DEFAULT, default=None, null=False)
+    notification_type = models.ForeignKey(NotificationType, on_delete=models.CASCADE, null=False)
+    status = models.ForeignKey(NotificationStatus, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
         return ' | '.join([self.user.first_name, self.status.name, self.notification_type.name])
