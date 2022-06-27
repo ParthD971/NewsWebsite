@@ -100,8 +100,9 @@ class ApplicationNotification(models.Model):
 
 
 class Follow(models.Model):
-    author = models.ForeignKey(User, related_name='editor', on_delete=models.CASCADE, null=False)
+    author = models.ForeignKey(User, related_name='editor', on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, related_name='consumer', on_delete=models.CASCADE, null=False)
+    author_name = models.CharField(max_length=50, default=None, null=True)
 
     def __str__(self):
         return ' -> '.join([self.user.first_name, self.author.first_name])

@@ -17,11 +17,6 @@
 
                     <span>
                         Posted by
-{#                        <a href="{% url 'author_news_list' %}?author={{ post.author_display_name }}">#}
-{##}
-{#                                {{ post.author_display_name }}#}
-{##}
-{#                        </a> #}
                         <a href="{% url 'home' %}?author={{ post.author_display_name }}">
 
                                 {{ post.author_display_name }}
@@ -30,6 +25,15 @@
 
                         on {{ post.created_on }}
                     </span>
+                    <div>
+                        {% if user.is_authenticated %}
+                            {% if following %}
+                                <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}">Unfollow</a>
+                            {% else %}
+                                <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}">Follow</a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

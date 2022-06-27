@@ -11,3 +11,6 @@ urlpatterns = [
     path('scrap/', news_blog_views.run_scraper, name='run_scraper'),
     path('', include('news_blog.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+

@@ -1,0 +1,157 @@
+{% extends "news_blog/base.html" %}
+
+{% block css %}{% endblock %}
+
+
+{% block body %}
+<div class="container my-3">
+
+    <div class="row">
+        <div class="col-md-10">
+            {% if unseen_notifications %}
+                <h2>Un-Read Notifications</h2>
+                <ul>
+                    {% for notification in unseen_notifications %}
+                        <li>
+                            <a class="noti-item" id="{{ notification.id }}" href="{% url 'news_detail' pk=notification.post.id %}">
+                                <p>
+                                    <strong>{{ notification.post.title|slice:":25" }}{% if notification.post.title|length > 25 %}...{% endif %}</strong>
+                                    <br>
+                                    By {{ notification.post.author_display_name }}
+                                </p>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <h2>No Un-Read Notifications</h2>
+            {% endif %}
+
+            {% if notifications %}
+                <h2>Old Notifications</h2>
+                <ul>
+                    {% for notification in notifications %}
+                        <li>
+                        <a href="{% url 'news_detail' pk=notification.post.id %}">
+                            <p>
+                                <strong>{{ notification.post.title|slice:":25" }}{% if notification.post.title|length > 25 %}...{% endif %}</strong>
+                                <br>
+                                By {{ notification.post.author_display_name }}
+                            </p>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.previous_page_number }}">
+                        Previous Page
+                    </a>
+                {% endif%}
+                {% for page_number in page_obj.adjusted_elided_pages %}
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        {{page_number}}
+                    {% else %}
+                        <a
+                            href="{% url 'managers_news_posts_table' %}?page={{ page_number }}"
+                            class="{% if page_number == page_obj.number %}current{% endif %}"
+                        >
+                            {{ page_number }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.next_page_number }}">
+                        Next Page
+                    </a>
+                {% endif%}
+            {% else %}
+                <h2>No Old Notifications</h2>
+            {% endif %}
+        </div>
+        <div class="col-md-2">
+            <form method="GET" class="d-flex">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Filter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                          Date
+                          <input type="date" id="created_on" name="created_on">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="categories">Category</label>
+                          </div>
+                          <select name="category" id="categories">
+                            <option value="">--</option>
+                                {% for cat in categories %}
+                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
+                                {% endfor %}
+                          </select>
+
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="statuses">Status</label>
+                          </div>
+                          <select name="status" id="statuses">
+                            <option value="">--</option>
+                                {% for status in statuses %}
+                                    <option value="{{ status.name }}">{{ status.name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="editors">Editor</label>
+                          </div>
+                          <select name="editor" id="editors">
+                            <option value="">--</option>
+                                {% for author in authors %}
+                                    <option value="{{ author.author_display_name }}">{{ author.author_display_name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                  <tr>
+                      <td>
+                          <button class="btn btn-outline-success" type="submit">Filter</button>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+
+    <script>
+        $(".noti-item").click(function(){
+            let noti_id = $(this).attr('id');
+            $.ajax({
+                url: "{% url 'notification_seen' %}?pk="+noti_id,
+                success: function(result){
+
+                }
+            });
+        });
+
+
+    </script>
+
+{% endblock %}

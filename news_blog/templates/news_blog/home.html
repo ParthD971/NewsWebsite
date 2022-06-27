@@ -2,7 +2,71 @@
 
 {% block title %}Home Page{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+
+    <style>
+        #myDD {
+            user-select: none;
+        }
+    </style>
+
+{% endblock %}
+
+{% block notification %}
+
+    <li class="dropdown" id="myDD">
+        <button class="btn dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+            Notification (<span id="notification_count">{{ notifications|length }}</span>)
+        </button>
+        <ul class="dropdown-menu dropdown-menu-light" style="min-width: 20rem;" aria-labelledby="dropdownMenuButton2">
+        {% if notifications %}
+            {% for noti in notifications %}
+                <li>
+                    <div class="container">
+                        <div class="row" id="{{ noti.id }}">
+                            <div class="col-md-8">
+                                {% if noti.notification_type.name == 'post added' %}
+                                    <a class="dropdown-item noti-item" href="{% url 'news_detail' pk=noti.post.id %}">
+                                        <p>
+                                            <strong>{{ noti.post.title|slice:":25" }}{% if noti.post.title|length > 25 %}...{% endif %}</strong>
+                                            <br>
+                                            By {{ noti.post.author_display_name }}
+                                        </p>
+                                    </a>
+                                {% elif noti.notification_type.name == 'post deleted' %}
+                                    <span class="dropdown-item">
+                                        Deleted:
+                                        <strong>{{ noti.post.title|slice:":25" }}{% if noti.post.title|length > 25 %}...{% endif %}</strong>
+                                        <br>
+                                        By {{ noti.post.author_display_name }}
+                                    </span>
+                                {% endif %}
+
+                            </div>
+                            <div class="col-md-4">
+                                <span class="btn btn-secondary px-0 noti-item">Mark Read</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </li>
+            {% endfor %}
+        {% else %}
+            <span class="dropdown-item">
+                No Notifications
+            </span>
+
+        {% endif %}
+            <hr>
+            <a class="dropdown-item" href="{% url 'notification_list' %}">
+                View all notifications
+            </a>
+
+        </ul>
+    </li>
+
+
+{% endblock %}
 
 {% block body %}
 
@@ -58,4 +122,38 @@
 
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block js %}
+
+    <script>
+        $('#myDD').on('hide.bs.dropdown', function (e) {
+            if (e.clickEvent) {
+              e.preventDefault();
+            }
+        });
+
+        $(".noti-item").click(function(){
+            let row = $(this).parent().parent();
+            let noti_id = row.attr('id');
+            $.ajax({
+                url: "{% url 'notification_seen' %}?pk="+noti_id,
+                success: function(result){
+                    let ul = row.parent().parent().parent();
+                    {# deleting whole li tag #}
+                    row.parent().parent().remove();
+                    {# updating counter #}
+                    let counter = $('#notification_count');
+                    let value = counter.text();
+                    counter.text(parseInt(value)-1);
+                    if(ul.length == 1) {
+                        ul.prepend(`<span class="dropdown-item">
+                                No Notifications
+                            </span>`)
+                    }
+                }
+            });
+        });
+
+
+    </script>
+
+{% endblock %}

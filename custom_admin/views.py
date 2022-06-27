@@ -316,10 +316,11 @@ class ManagersPostUpdateView(UpdateView):
 
         if status_changed:
             if new_status == 'active':
-                if old_status == 'pending' or old_status == 'inreview':
+                if old_status == 'pending' or old_status == 'inreview' or old_status == 'inactive':
                     # sending notifications
                     new_post_obj = Post.objects.get(id=post_obj.id)
                     followers = Follow.objects.select_related('user').filter(author=new_post_obj.author)
+                    print(followers)
                     notification_type = NotificationType.objects.get(name='post added')
                     post_notifications = [
                         PostNotification(
@@ -333,6 +334,7 @@ class ManagersPostUpdateView(UpdateView):
                 if old_status == 'active':
                     new_post_obj = Post.objects.get(id=post_obj.id)
                     followers = Follow.objects.select_related('user').filter(author=new_post_obj.author)
+                    print(followers)
                     notification_type = NotificationType.objects.get(name='post deleted')
                     post_notifications = [
                         PostNotification(
