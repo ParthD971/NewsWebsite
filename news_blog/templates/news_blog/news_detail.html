@@ -23,8 +23,9 @@
 
                         </a>
 
-                        on {{ post.created_on }}
+                        on {{ post.created_on }} (<i class="fa fa-eye"></i> {{ post.views }})
                     </span>
+
                     <div>
                         {% if user.is_authenticated %}
                             {% if following %}
@@ -48,4 +49,17 @@
 
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block js %}
+
+    <script>
+        $.ajax({
+            url: "{% url 'add_views' %}?pk="+{{ post.id }},
+            success: function(result){
+                console.log(result)
+            }
+        });
+    </script>
+
+
+
+{% endblock %}

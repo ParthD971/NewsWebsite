@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from .models import CustomUser as User
 from validate_email_address import validate_email
+from django.core.exceptions import ValidationError
 
 
 class RegisterForm(UserCreationForm):
@@ -98,4 +99,24 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('email',)
+
+
+class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(required=True)
+    def clean_age(self):
+        cleaned_data = self.clean()
+        age = cleaned_data.get('age')
+
+        if age < 1 or age > 100:
+            raise ValidationError(
+                "Age not valid"
+            )
+        return age
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'age']
+
+
+
         

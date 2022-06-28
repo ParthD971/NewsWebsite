@@ -8,6 +8,15 @@
         #myDD {
             user-select: none;
         }
+        .carousel-inner .item{
+           height: 400px;
+           background-size:cover;
+           background-position: center center;
+        }
+        #trendingNews {
+            width: 100%;
+            margin: 0 auto;
+        }
     </style>
 
 {% endblock %}
@@ -71,52 +80,166 @@
 {% block body %}
 
 <div class="container my-3">
-{% if posts %}
-    {% for post in posts %}
-        <div class="card mb-3" style="max-width: 90%;">
-          <div class="row g-0">
-            <div class="col-md-4">
-              <img src="{{ post.image.url }}" class="img-fluid rounded-start" alt="News Image">
-            </div>
-            <div class="col-md-8">
-              <div class="card-body">
-                <h5 class="card-title">
-                    <a href="{% url 'news_detail' pk=post.id %}">{{ post.title }}</a>
-                </h5>
-                <p class="card-text">{{ post.content|slice:":255" }}</p>
-                <p class="card-text"><small class="text-muted">{{ post.created_on }}</small></p>
-              </div>
-            </div>
-          </div>
+    <div class="row">
+        <div class="col-md-8">
+            {% if trending_posts %}
+                <h4 style="text-align: center"><span>Trending News</span></h4>
+                <div id="trendingNews" class="carousel slide" data-bs-ride="carousel">
+                  <div class="carousel-indicators">
+                    {% for tpost in trending_posts %}
+                      <button type="button" data-bs-target="#trendingNews" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.counter0 == 0 %}active{% endif %}" aria-current="true" aria-label="Slide 1"></button>
+                    {% endfor %}
+                  </div>
+                  <div class="carousel-inner">
+                      {% for tpost in trending_posts %}
+                        <div class="carousel-item {% if forloop.counter0 == 0 %}active{% endif %}">
+                            <div class="item" style="background-image: url({{ tpost.image.url }})"></div>
+                          <div class="carousel-caption d-none d-md-block">
+                            <h5>
+                            <a href="{% url 'news_detail' pk=tpost.id %}">{{ tpost.title|slice:":80" }}{% if tpost.title|length > 80 %}...{% endif %}</a>
+                            </h5>
+                            <p>{{ tpost.content|slice:":150" }}{% if tpost.content|length > 150 %}...{% endif %}</p>
+                          </div>
+                        </div>
+                      {% endfor %}
+
+                  </div>
+                  <button class="carousel-control-prev" type="button" data-bs-target="#trendingNews" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                  </button>
+                  <button class="carousel-control-next" type="button" data-bs-target="#trendingNews" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                  </button>
+                </div>
+            {% endif %}
         </div>
-    {% endfor %}
-    {% if page_obj.has_previous %}
-        <a href="{% url 'home' %}?page={{ page_obj.previous_page_number }}">
-            Previous Page
-        </a>
-    {% endif%}
-    {% for page_number in page_obj.adjusted_elided_pages %}
-        {% if page_number == page_obj.paginator.ELLIPSIS %}
-            {{page_number}}
-        {% else %}
-            <a
-                href="{% url 'home' %}?page={{ page_number  }}"
-                class="{% if page_number == page_obj.number %}current{% endif %}"
-            >
-                {{page_number}}
-            </a>
-        {% endif %}
-    {% endfor %}
-    {% if page_obj.has_next %}
-        <a href="{% url 'home' %}?page={{ page_obj.next_page_number }}">
-            Next Page
-        </a>
-    {% endif%}
-{% else %}
+        <div class="col-md-4">
+            <form method="GET" class="d-flex">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Filter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                          Date
+                          <input type="date" id="created_on" name="created_on">
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
 
-    No Posts
+                          {% for cat in categories %}
+                              <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" name="{{ cat.name }}" value="1" id="{{ cat.name }}">
+                                  <label class="form-check-label" for="{{ cat.name }}">
+                                        {{ cat.name }}
+                                  </label>
+                              </div>
+                          {% endfor %}
 
-{% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="statuses">Status</label>
+                          </div>
+                          <select name="status" id="statuses">
+                            <option value="">--</option>
+                                {% for status in statuses %}
+                                    <option value="{{ status.name }}">{{ status.name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="editors">Editor</label>
+                          </div>
+                          <select name="author" id="editors">
+                            <option value="">--</option>
+                                {% for author in authors %}
+                                    <option value="{{ author.author_display_name }}">{{ author.author_display_name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                  <tr>
+                      <td>
+                          <button class="btn btn-outline-success" type="submit">Filter</button>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            {% if posts %}
+                {% for post in posts %}
+                    <div class="card mb-3" style="max-width: 90%;">
+                      <div class="row g-0">
+                        <div class="col-md-4">
+                          <img src="{{ post.image.url }}" class="img-fluid rounded-start" alt="News Image">
+                        </div>
+                        <div class="col-md-8">
+                          <div class="card-body">
+                            <h5 class="card-title">
+                                <a href="{% url 'news_detail' pk=post.id %}">{{ post.title|slice:":80" }}{% if post.title|length > 80 %}...{% endif %}</a>
+                            </h5>
+                            <p class="card-text">{{ post.content|slice:":255" }}{% if post.content|length > 255 %}...{% endif %}</p>
+                              -- By <strong>{{ post.author_display_name }}</strong>
+                            <p class="card-text">
+                                <small class="text-muted">{{ post.created_on }}</small>
+                            </p>
+                            <p>
+                                <i class="fa fa-eye"></i> {{ post.views }}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                {% endfor %}
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'home' %}?page={{ page_obj.previous_page_number }}">
+                        Previous Page
+                    </a>
+                {% endif%}
+                {% for page_number in page_obj.adjusted_elided_pages %}
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        {{page_number}}
+                    {% else %}
+                        <a
+                            href="{% url 'home' %}?page={{ page_number  }}"
+                            class="{% if page_number == page_obj.number %}current{% endif %}"
+                        >
+                            {{page_number}}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="{% url 'home' %}?page={{ page_obj.next_page_number }}">
+                        Next Page
+                    </a>
+                {% endif%}
+            {% else %}
+
+                No Posts
+
+            {% endif %}
+        </div>
+    </div>
+
 </div>
 
 
@@ -152,7 +275,6 @@
                 }
             });
         });
-
 
     </script>
 

@@ -1,4 +1,14 @@
-from .models import Post, ApplicationNotification, NotificationStatus, NotificationType, Follow, PostNotification
+from .models import (
+    Post,
+    ApplicationNotification,
+    NotificationStatus,
+    NotificationType,
+    Follow,
+    PostNotification,
+    PostView,
+    Categorie,
+    PostStatus
+)
 from django.views.generic import ListView, DetailView, View
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
@@ -10,7 +20,8 @@ from django.db.models import Q
 from django.shortcuts import redirect, render
 from users.models import CustomUser as User
 import os
-from django.http import HttpResponse
+from django.http import JsonResponse
+from datetime import datetime
 
 
 class HomeView(ListView):
@@ -25,15 +36,25 @@ class HomeView(ListView):
         queryset = super().get_queryset().filter(status__name='active')
 
         # for serach filter
-        search = self.request.GET.get('search', None)
+        search = self.request.GET.get('search', '').strip()
         if search:
             return queryset.filter(Q(title__contains=search) | Q(content__contains=search))
 
         # for author filter
-        author_display_name = self.request.GET.get('author', '')
+        author_display_name = self.request.GET.get('author', '').strip()
         if author_display_name:
             # filter by display name
-                queryset = queryset.filter(author_display_name=author_display_name)
+            queryset = queryset.filter(author_display_name=author_display_name)
+
+        # for date filter
+        created_on = self.request.GET.get('created_on', '').strip()
+        if created_on:
+            created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
+            queryset = queryset.filter(created_on=created_on)
+
+        status = self.request.GET.get('status', '').strip()
+        if status:
+            queryset = queryset.filter(status__name=status)
 
         return queryset
 
@@ -47,9 +68,17 @@ class HomeView(ListView):
         posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
         context['page_obj'] = posts
 
-
         if self.request.user.is_authenticated and self.request.user.user_type and self.request.user.user_type.name == 'consumer':
-            context['notifications'] = PostNotification.objects.filter(user=self.request.user, seen=False).order_by('-id')
+            context['notifications'] = PostNotification.objects.filter(user=self.request.user, seen=False).order_by(
+                '-id')
+
+        context['trending_posts'] = Post.objects.filter(status__name='active').order_by('-views')[:3]
+        print(context['trending_posts'])
+
+        context['categories'] = Categorie.objects.all()
+        context['statuses'] = PostStatus.objects.all().exclude(Q(name='rejected') | Q(name='deleted'))
+
+        print(context['categories'])
 
         return context
 
@@ -110,7 +139,8 @@ class ManagerApplicationView(SuccessMessageMixin, FormView):
                 current_user = self.request.user
                 notification_type = NotificationType.objects.get(name='manager request')
                 status = NotificationStatus.objects.get(name='pending')
-                application_notification = ApplicationNotification(user=current_user, notification_type=notification_type, status=status)
+                application_notification = ApplicationNotification(user=current_user,
+                                                                   notification_type=notification_type, status=status)
                 application_notification.save()
                 messages.success(self.request, 'Application for manager submitted.')
             except NotificationType.DoesNotExist as e:
@@ -139,7 +169,8 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
                 current_user = self.request.user
                 notification_type = NotificationType.objects.get(name='editor request')
                 status = NotificationStatus.objects.get(name='pending')
-                application_notification = ApplicationNotification(user=current_user, notification_type=notification_type, status=status)
+                application_notification = ApplicationNotification(user=current_user,
+                                                                   notification_type=notification_type, status=status)
                 application_notification.save()
                 messages.success(self.request, 'Application for editor submitted.')
             except NotificationType.DoesNotExist as e:
@@ -152,6 +183,8 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
 
 
 from django.urls import resolve
+
+
 class FollowView(View):
     def get(self, request, **kwargs):
         user = request.user
@@ -195,19 +228,6 @@ class FollowView(View):
         return redirect('news_detail', pk=self.kwargs.get('pk', ''))
 
 
-def notification_seen(request, **kwargs):
-    noti_id = request.GET.get('pk', '')
-    post_notifications = PostNotification.objects.filter(id=noti_id)
-    if not post_notifications.exists():
-        return HttpResponse('Does not exists')
-    else:
-        post_notification = post_notifications.first()
-        post_notification.seen = True
-        post_notification.save()
-
-    return HttpResponse('Done')
-
-
 class PostNotificationListView(ListView):
     model = PostNotification
     template_name = 'news_blog/post_notification_list.html'
@@ -230,14 +250,12 @@ class PostNotificationListView(ListView):
 
         context['unseen_notifications'] = PostNotification.objects.filter(user=self.request.user, seen=False)
 
-
         return context
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(user=self.request.user, seen=True)
         # search = self.request.GET.get('search', '')
         # editor_display_name = self.request.GET.get('editor', '').strip()
-
 
         # if editor_display_name:
         #     queryset = queryset.filter(author_display_name=editor_display_name)
@@ -247,11 +265,42 @@ class PostNotificationListView(ListView):
         return queryset
 
 
+class NotificationSeenView(View):
+    def get(self, request, **kwargs):
+        noti_id = request.GET.get('pk', '')
+        post_notifications = PostNotification.objects.filter(id=noti_id)
+        if not post_notifications.exists():
+            return JsonResponse({'msg': 'Does not exists'})
+        else:
+            post_notification = post_notifications.first()
+            post_notification.seen = True
+            post_notification.save()
 
+        return JsonResponse({'msg': 'Done'})
+
+
+class AddViewsView(View):
+    def get(self, request, **kwargs):
+        post_id = request.GET.get('pk', '')
+        posts = Post.objects.filter(id=post_id)
+        if not request.user.is_authenticated:
+            return JsonResponse({'msg': 'views not added because user not logged in.'})
+        if not posts.exists():
+            return JsonResponse({'msg': 'views not added because post not valid.'})
+        else:
+            post = posts.first()
+            post_view = PostView.objects.filter(user=request.user, post=post)
+            if post_view.exists():
+                return JsonResponse({'msg': 'views not added because already user have seen this post.'})
+            PostView(
+                user=request.user,
+                post=post
+            ).save()
+            post.views += 1
+            post.save()
+        return JsonResponse({'msg': 'views added'})
 
 
 def run_scraper(request):
     os.system('python manage.py crawl "sports"')
-    return HttpResponse('Done')
-
-
+    return JsonResponse({'msg': 'Done'})

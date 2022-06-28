@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, ProfileForm
 from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.utils.http import urlsafe_base64_decode
@@ -122,7 +122,7 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
 
 class ProfileView(UpdateView):
     model = User
-    fields = ['first_name']
+    form_class = ProfileForm
     success_url = reverse_lazy('home')
     template_name = 'users/profile.html'
 

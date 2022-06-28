@@ -28,6 +28,9 @@ class PostStatus(models.Model):
         return self.name
 
 
+
+
+
 class Post(models.Model):
     title = models.CharField(max_length=200, unique=True, blank=False, null=False)
     author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
@@ -35,7 +38,7 @@ class Post(models.Model):
     created_on = models.DateField(default=date.today)
     views = models.IntegerField(default=0, blank=False, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
-    category = models.ForeignKey(Categorie, on_delete=models.CASCADE, null=False)
+    category = models.ManyToManyField(Categorie, through='PCMiddle', null=False)
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
@@ -44,6 +47,10 @@ class Post(models.Model):
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
 
+
+class PCMiddle(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    category = models.ForeignKey(Categorie, on_delete=models.CASCADE)
 
 class PostRecycle(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
@@ -106,4 +113,10 @@ class Follow(models.Model):
 
     def __str__(self):
         return ' -> '.join([self.user.first_name, self.author.first_name])
+
+
+class PostView(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
+    viewed_on = models.DateField(default=date.today)
 

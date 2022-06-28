@@ -1,6 +1,17 @@
 from django.contrib import admin
-from .models import Categorie, PostStatus, Post, PostRecycle, NotificationType, PostNotification, \
-    NotificationStatus, ApplicationNotification, Follow
+from .models import (
+    Categorie,
+    PostStatus,
+    Post,
+    PostRecycle,
+    NotificationType,
+    PostNotification,
+    NotificationStatus,
+    ApplicationNotification,
+    Follow,
+    PostView,
+    PCMiddle
+)
 from .constants import GROUP_EDITOR_NAME
 from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
 
@@ -48,11 +59,13 @@ class FollowAdmin(admin.ModelAdmin):
     fields = ['post', 'deleted_by', 'recycle_created_on']
     readonly_fields = ['recycle_created_on']
 
+
 admin.site.register(Categorie)
-# admin.site.register(PostRecycle)
+admin.site.register(PostView)
 admin.site.register(NotificationType)
 admin.site.register(PostStatus)
 admin.site.register(PostNotification)
 admin.site.register(NotificationStatus)
 admin.site.register(ApplicationNotification)
+admin.site.register(PCMiddle)
 admin.site.site_header = 'News Website Admin Panel'
