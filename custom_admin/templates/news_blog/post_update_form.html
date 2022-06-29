@@ -20,7 +20,9 @@
                 <a href="{% url 'editors_delete_news_post' pk=object.id %}" class='btn btn-danger'>Delete</a>
             {% endif %}
         </form>
-
+            {% if user.is_authenticated and user.user_type.name == 'manager' and object.post_type == 'MANUAL' %}
+                <a href="{% url 'add_comment_to_post' pk=object.id %}" class='btn btn-secondary'> Comment </a>
+            {% endif %}
     </div>
 {% endblock %}
 

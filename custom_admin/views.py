@@ -14,13 +14,23 @@ from news_blog.models import (
     PostNotification,
     Follow,
     NotificationType,
-    PostRecycle
+    PostRecycle,
+    PostStatusRecord
 )
 from django.db.models import Q
 from news_blog.paginators import CustomPaginator
-from .forms import CategoryForm, ManagersPostUpdateForm, RestoreConfirmationForm, DeleteConfirmationForm
+from .forms import (
+    CategoryForm,
+    ManagersPostUpdateForm,
+    RestoreConfirmationForm,
+    DeleteConfirmationForm,
+    ManagersUserUpdateForm,
+    ManagersAddCommentForm,
+    EditorsPostUpdateForm
+)
 from datetime import datetime
 from news_blog.constants import DEFAULT_IMAGE_NAME
+from .models import ManagerComment
 
 
 # login required and must be admin superuser
@@ -123,7 +133,7 @@ class EditorsPostsListView(ListView):
     template_name = 'news_blog/editors_posts_table.html'
     context_object_name = 'posts'
     paginate_by = 20
-    ordering = ['-created_on']
+    ordering = ['-created_on', '-id']
     paginator_class = CustomPaginator
 
     def get_context_data(self, **kwargs):
@@ -146,20 +156,21 @@ class EditorsPostsListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(
-            Q(status__name='pending') | Q(status__name='rejected'),
+            ~Q(status__name='deleted'),
             author=self.request.user
         )
         search = self.request.GET.get('search', '')
         created_on = self.request.GET.get('created_on', '').strip()
-        category = self.request.GET.get('category', '').strip()
         status = self.request.GET.get('status', '').strip()
 
         if created_on:
             created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
             queryset = queryset.filter(created_on=created_on)
 
-        if category:
-            queryset = queryset.filter(category__name=category)
+        caterories = Categorie.objects.all()
+        lis = [cat.name for cat in caterories if self.request.GET.get(cat.name, '').strip()]
+        if lis:
+            queryset = queryset.filter(category__name__in=lis)
 
         if status:
             queryset = queryset.filter(status__name=status)
@@ -173,7 +184,7 @@ class EditorsPostsListView(ListView):
 class PostsCreateView(CreateView):
     model = Post
     template_name = 'news_blog/create_post_form.html'
-    fields = ['title', 'content', 'category', 'image']
+    fields = ['title', 'content', 'category', 'image', 'premium']
     success_url = reverse_lazy('editors_news_posts_table')
 
     def form_valid(self, form):
@@ -183,13 +194,22 @@ class PostsCreateView(CreateView):
         post_obj.status = PostStatus.objects.get(name='pending')
         post_obj.author_display_name = self.request.user.first_name
         # post_obj.post_type = default set to Manual
-        # if image is updated then remove old image
-        return super(PostsCreateView, self).form_valid(form)
+        redirect_link = super(PostsCreateView, self).form_valid(form)
+
+        post = self.object
+        PostStatusRecord(
+            changed_by=self.request.user,
+            post=post,
+            status=post.status
+        ).save()
+
+        return redirect_link
 
 
 class EditorsPostUpdateView(UpdateView):
     model = Post
-    fields = ['title', 'content', 'category', 'image']
+    form_class = EditorsPostUpdateForm
+    # fields = ['title', 'content', 'category', 'image', 'premium']
     success_url = reverse_lazy('editors_news_posts_table')
     template_name = 'news_blog/post_update_form.html'
 
@@ -243,7 +263,7 @@ class ManagersPostsListView(ListView):
     template_name = 'news_blog/managers_posts_table.html'
     context_object_name = 'posts'
     paginate_by = 20
-    ordering = ['-created_on']
+    ordering = ['-created_on', '-id']
     paginator_class = CustomPaginator
 
     def get_context_data(self, **kwargs):
@@ -262,7 +282,7 @@ class ManagersPostsListView(ListView):
         context['categories'] = Categorie.objects.all()
         context['statuses'] = PostStatus.objects.all().exclude(Q(name='rejected') | Q(name='deleted'))
         # context['authors'] = self.get_queryset().order_by('author_display_name').values('author_display_name').distinct()
-        context['authors'] = Post.objects.exclude(Q(status__name='rejected') | Q(status__name='deleted')).order_by('author_display_name').values(
+        context['authors'] = Post.objects.order_by('author_display_name').values(
             'author_display_name').distinct()
 
         return context
@@ -271,7 +291,7 @@ class ManagersPostsListView(ListView):
         queryset = super().get_queryset().exclude(Q(status__name='rejected') | Q(status__name='deleted'))
         search = self.request.GET.get('search', '')
         created_on = self.request.GET.get('created_on', '').strip()
-        category = self.request.GET.get('category', '').strip()
+
         status = self.request.GET.get('status', '').strip()
         editor_display_name = self.request.GET.get('editor', '').strip()
 
@@ -279,8 +299,12 @@ class ManagersPostsListView(ListView):
             created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
             queryset = queryset.filter(created_on=created_on)
 
-        if category:
-            queryset = queryset.filter(category__name=category)
+        caterories = Categorie.objects.all()
+        lis = [cat.name for cat in caterories if self.request.GET.get(cat.name, '').strip()]
+        if lis:
+            queryset = queryset.filter(category__name__in=lis)
+
+
 
         if status:
             queryset = queryset.filter(status__name=status)
@@ -428,7 +452,7 @@ class ManagersUsersListView(ListView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_staff=False)
+        queryset = super().get_queryset().filter(is_superuser=False).exclude(user_type__name='manager')
         search = self.request.GET.get('search', '')
         blocked = self.request.GET.get('blocked', '')
         staff = self.request.GET.get('staff', '')
@@ -454,7 +478,8 @@ class ManagersUsersListView(ListView):
 
 class ManagersUserUpdateView(UpdateView):
     model = User
-    fields = ['is_blocked']
+    form_class = ManagersUserUpdateForm
+    # fields = ['is_blocked']
     success_url = reverse_lazy('managers_users_table')
     template_name = 'users/managers_user_update_form.html'
 
@@ -577,4 +602,73 @@ class RestoreEditorsNewsConfirmView(FormView):
         post.save()
         obj.delete()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class ManagersAddCommentView(FormView):
+    model = ManagerComment
+    # fields = ['comment']
+    form_class = ManagersAddCommentForm
+    success_url = reverse_lazy('managers_news_posts_table')
+    template_name = 'custom_admin/add_comment.html'
+
+    def get(self, request, *args, **kwargs):
+        pk = self.kwargs.get('pk', '')
+        if not (pk and Post.objects.filter(id=pk, post_type='MANUAL').exists()):
+            self.template_name = '404.html'
+        return self.render_to_response(self.get_context_data())
+
+    def get_form_kwargs(self):
+        kwargs = super(ManagersAddCommentView, self).get_form_kwargs()
+        kwargs['pk'] = self.kwargs.get('pk')
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        pk = self.kwargs.get('pk')
+        query = ManagerComment.objects.filter(manager=self.request.user, post_id=pk)
+        if query.exists():
+            obj = query.first()
+            obj.comment = form.cleaned_data.get('comment')
+            obj.save()
+        else:
+            ManagerComment(
+                manager=self.request.user,
+                post=Post.objects.get(id=pk),
+                comment=form.cleaned_data.get('comment')
+            ).save()
+        return HttpResponseRedirect(self.get_success_url())
+
+
+class EditorsCommentListView(ListView):
+    model = ManagerComment
+    template_name = 'custom_admin/editors_comment_list_table.html'
+    context_object_name = 'comments'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+    ordering = ['id']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        users = self.get_queryset()
+        paginator = self.paginator_class(users, self.paginate_by)
+
+        users = paginator.page(page)
+        users.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = users
+
+        return context
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(post__author=self.request.user)
+
+        pk = self.kwargs.get('pk', '')
+        queryset = queryset.filter(post_id=pk)
+
+        return queryset
+
+
+
 

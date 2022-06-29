@@ -11,6 +11,7 @@ urlpatterns = [
     path('add_views/', views.AddViewsView.as_view(), name='add_views'),
     path('manager-application/', views.ManagerApplicationView.as_view(), name='apply_for_manager'),
     path('editor-application/', views.EditorApplicationView.as_view(), name='apply_for_editor'),
+    path('premium-user-application/', views.PremiumApplyView.as_view(), name='apply_for_premium_user'),
 ]
 
 

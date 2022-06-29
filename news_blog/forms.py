@@ -90,3 +90,22 @@ class EditorApplicationForm(forms.Form):
         return data
 
 
+class PremiumApplicationForm(forms.Form):
+    check = forms.BooleanField(label='I have read and agree the terms and conditions.', required=True)
+
+    def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
+        super(PremiumApplicationForm, self).__init__(*args, **kwargs)
+
+    def clean_check(self):
+        check = self.cleaned_data['check']
+        current_user = self.request.user
+
+        if current_user.is_premium_user:
+            raise ValidationError(
+                f"You cannot apply because you already are premium user."
+            )
+
+        return check
+
+

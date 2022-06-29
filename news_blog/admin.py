@@ -10,7 +10,8 @@ from .models import (
     ApplicationNotification,
     Follow,
     PostView,
-    PCMiddle
+    PCMiddle,
+    PostStatusRecord
 )
 from .constants import GROUP_EDITOR_NAME
 from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
@@ -68,4 +69,5 @@ admin.site.register(PostNotification)
 admin.site.register(NotificationStatus)
 admin.site.register(ApplicationNotification)
 admin.site.register(PCMiddle)
+admin.site.register(PostStatusRecord)
 admin.site.site_header = 'News Website Admin Panel'

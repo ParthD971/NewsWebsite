@@ -23,6 +23,7 @@ class CustomUser(AbstractUser):
     is_blocked = models.BooleanField(default=False)
     user_type = models.ForeignKey(UserType, on_delete=models.SET_DEFAULT, default=None, null=True)
     age = models.IntegerField(null=True)
+    is_premium_user = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

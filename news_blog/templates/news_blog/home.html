@@ -116,6 +116,7 @@
             {% endif %}
         </div>
         <div class="col-md-4">
+        {% if trending_posts %}
             <form method="GET" class="d-flex">
                 <table class="table">
                   <thead>
@@ -144,19 +145,7 @@
 
                       </td>
                     </tr>
-                    <tr>
-                      <td>
-                          <div>
-                              <label for="statuses">Status</label>
-                          </div>
-                          <select name="status" id="statuses">
-                            <option value="">--</option>
-                                {% for status in statuses %}
-                                    <option value="{{ status.name }}">{{ status.name }}</option>
-                                {% endfor %}
-                          </select>
-                      </td>
-                    </tr>
+
                     <tr>
                       <td>
                           <div>
@@ -180,6 +169,7 @@
                 </table>
 
             </form>
+        {% endif %}
         </div>
     </div>
 
@@ -199,6 +189,9 @@
                             </h5>
                             <p class="card-text">{{ post.content|slice:":255" }}{% if post.content|length > 255 %}...{% endif %}</p>
                               -- By <strong>{{ post.author_display_name }}</strong>
+                          {% if post.premium %}
+                              <span class="badge bg-danger">Premium</span>
+                          {% endif %}
                             <p class="card-text">
                                 <small class="text-muted">{{ post.created_on }}</small>
                             </p>

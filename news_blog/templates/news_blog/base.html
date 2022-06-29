@@ -87,6 +87,10 @@
                                   <li><a class="dropdown-item" aria-current="page" href="{% url 'apply_for_editor' %}">Apply for Editor</a></li>
                               {% endif %}
 
+                              {% if not user.is_premium_user %}
+                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply_for_premium_user' %}">Apply for Premium User</a></li>
+                              {% endif %}
+
                           </ul>
                         </li>
                       </ul>

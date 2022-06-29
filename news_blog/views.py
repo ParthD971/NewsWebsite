@@ -12,7 +12,7 @@ from .models import (
 from django.views.generic import ListView, DetailView, View
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
-from .forms import ManagerApplicationForm, EditorApplicationForm
+from .forms import ManagerApplicationForm, EditorApplicationForm, PremiumApplicationForm
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
@@ -30,7 +30,7 @@ class HomeView(ListView):
     context_object_name = 'posts'
     paginate_by = 5
     paginator_class = CustomPaginator
-    ordering = ['-created_on']
+    ordering = ['-created_on', '-id']
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(status__name='active')
@@ -52,9 +52,10 @@ class HomeView(ListView):
             created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
             queryset = queryset.filter(created_on=created_on)
 
-        status = self.request.GET.get('status', '').strip()
-        if status:
-            queryset = queryset.filter(status__name=status)
+        caterories = Categorie.objects.all()
+        lis = [cat.name for cat in caterories if self.request.GET.get(cat.name, '').strip()]
+        if lis:
+            queryset = queryset.filter(category__name__in=lis)
 
         return queryset
 
@@ -73,12 +74,8 @@ class HomeView(ListView):
                 '-id')
 
         context['trending_posts'] = Post.objects.filter(status__name='active').order_by('-views')[:3]
-        print(context['trending_posts'])
-
         context['categories'] = Categorie.objects.all()
-        context['statuses'] = PostStatus.objects.all().exclude(Q(name='rejected') | Q(name='deleted'))
-
-        print(context['categories'])
+        context['authors'] = Post.objects.order_by('author_display_name').values('author_display_name').distinct()
 
         return context
 
@@ -94,6 +91,10 @@ class PostDetailView(DetailView):
 
         if self.object.status.name != 'active':
             self.template_name = '404.html'
+
+        if self.object.premium:
+            if not (request.user.is_authenticated and request.user.is_premium_user):
+                return redirect('apply_for_premium_user')
 
         return self.render_to_response(context)
 
@@ -299,6 +300,24 @@ class AddViewsView(View):
             post.views += 1
             post.save()
         return JsonResponse({'msg': 'views added'})
+
+
+class PremiumApplyView(SuccessMessageMixin, FormView):
+    template_name = 'news_blog/premium_user_application.html'
+    form_class = PremiumApplicationForm
+    success_url = reverse_lazy('home')
+
+    def get_form_kwargs(self):
+        kwargs = super(PremiumApplyView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def form_valid(self, form):
+        user = self.request.user
+        user.is_premium_user = True
+        user.save()
+        return super().form_valid(form)
+
 
 
 def run_scraper(request):

@@ -1,11 +1,12 @@
 from django.db import models
 from users.models import CustomUser as User
 from .constants import POST_TYPE_CHOICES, POST_IMAGE_UPLOAD_TO, DEFAULT_IMAGE_PATH
-from datetime import date
+from datetime import date, datetime
 
 
 class Categorie(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False, null=False)
+    description = models.CharField(max_length=200, blank=False, null=True)
 
     # saves in lower-case
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
@@ -28,9 +29,6 @@ class PostStatus(models.Model):
         return self.name
 
 
-
-
-
 class Post(models.Model):
     title = models.CharField(max_length=200, unique=True, blank=False, null=False)
     author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
@@ -38,12 +36,13 @@ class Post(models.Model):
     created_on = models.DateField(default=date.today)
     views = models.IntegerField(default=0, blank=False, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
-    category = models.ManyToManyField(Categorie, through='PCMiddle', null=False)
+    category = models.ManyToManyField(Categorie, through='PCMiddle', null=True)
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])
     author_display_name = models.CharField(max_length=50, default=None, null=True)
-
+    premium = models.BooleanField(default=False)
+    
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
 
@@ -119,4 +118,13 @@ class PostView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
     viewed_on = models.DateField(default=date.today)
+
+
+class PostStatusRecord(models.Model):
+    changed_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
+    status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
+    changed_on = models.DateTimeField(auto_now_add=True)
+
+
 

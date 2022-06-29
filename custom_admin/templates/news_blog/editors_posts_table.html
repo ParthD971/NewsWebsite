@@ -30,6 +30,10 @@
                                 <a href="{% url 'editors_change_news_post' pk=post.id %}">
                                     {{ post }}
                                 </a>
+                                -
+                                <a href="{% url 'editors_comments_list' pk=post.id %}">
+                                    View Comments
+                                </a>
                             </li>
                         {% endfor %}
                     </ul>
@@ -78,15 +82,14 @@
                     </tr>
                     <tr>
                       <td>
-                          <div>
-                              <label for="categories">Category</label>
-                          </div>
-                          <select name="category" id="categories">
-                            <option value="">--</option>
-                                {% for cat in categories %}
-                                    <option value="{{ cat.name }}">{{ cat.name }}</option>
-                                {% endfor %}
-                          </select>
+                          {% for cat in categories %}
+                              <div class="form-check">
+                                  <input class="form-check-input" type="checkbox" name="{{ cat.name }}" value="1" id="{{ cat.name }}">
+                                  <label class="form-check-label" for="{{ cat.name }}">
+                                        {{ cat.name }}
+                                  </label>
+                              </div>
+                        {% endfor %}
 
                       </td>
                     </tr>

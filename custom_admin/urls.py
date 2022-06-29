@@ -19,6 +19,7 @@ urlpatterns = [
     path('manager-panel/categories-table/add-category/', views.CategoryCreateView.as_view(), name='add_category'),
     path('manager-panel/categories-table/change-category/<pk>/', views.CategoryUpdateView.as_view(), name='change_category'),
 
+
     path('manager-panel/users-table/', views.ManagersUsersListView.as_view(), name='managers_users_table'),
     path('manager-panel/users-table/change-user/<pk>/', views.ManagersUserUpdateView.as_view(), name='managers_change_user'),
 
@@ -33,5 +34,8 @@ urlpatterns = [
     path('editor-panel/restore_posts/', views.EditorsRestorePostListView.as_view(), name='editors_restore_post_table'),
     path('editor-panel/restore_posts/<pk>/', views.RestoreEditorsNewsConfirmView.as_view(), name='editors_restore_news_post'),
 
+
+    path('manager-panel/news-posts-table/comment/<pk>/', views.ManagersAddCommentView.as_view(), name='add_comment_to_post'),
+    path('editor-panel/news-posts-table/comment/<pk>/', views.EditorsCommentListView.as_view(), name='editors_comments_list'),
 
 ]
