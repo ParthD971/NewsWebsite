@@ -4,6 +4,18 @@
 
 {% block body %}
     <div class="container my-3">
+
+        first_name - {{ object.user.first_name }} <br>
+        last_name - {{ object.user.last_name }} <br>
+        age - {{ object.user.age }} <br>
+        user_type - {{ object.user.user_type.name }} <br>
+        email - {{ object.user.email }} <br>
+        is_blocked - {{ object.user.is_blocked }} <br>
+        is_premium_user - {{ object.user.is_premium_user }} <br>
+        is_active - {{ object.user.is_active }} <br> <br>
+
+        <p>Notification for <strong>{{ object.notification_type.name }}</strong></p>
+
         {% load crispy_forms_tags %}
         <form method = "POST">
             {% csrf_token %}

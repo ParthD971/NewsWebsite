@@ -15,7 +15,10 @@ from news_blog.models import (
     Follow,
     NotificationType,
     PostRecycle,
-    PostStatusRecord
+    PostStatusRecord,
+    NotificationStatus,
+    PCMiddle,
+    PostView
 )
 from django.db.models import Q
 from news_blog.paginators import CustomPaginator
@@ -47,51 +50,96 @@ class UsersListView(ListView):
     model = User
     template_name = 'users/users_table.html'
     context_object_name = 'users'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        posts = self.get_queryset()
+        paginator = self.paginator_class(posts, self.paginate_by)
+
+        posts = paginator.page(page)
+        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = posts
+
+        context['user_types'] = UserType.objects.all()
+
+        return context
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(is_superuser=False)
+
         search = self.request.GET.get('search', '')
         if search.strip():
-            return queryset.filter(Q(first_name__contains=search))
+            return queryset.filter(Q(first_name__contains=search) | Q(last_name__contains=search))
+
+        blocked = self.request.GET.get('blocked', '')
+        if blocked:
+            queryset = queryset.filter(is_blocked=blocked == 'True')
+
+        staff = self.request.GET.get('staff', '')
+        if staff:
+            queryset = queryset.filter(is_staff=staff == 'True')
+
+        premium_user = self.request.GET.get('premium_user', '')
+        if premium_user:
+            queryset = queryset.filter(is_premium_user=premium_user == 'True')
+
+        active = self.request.GET.get('active', '')
+        if active:
+            queryset = queryset.filter(is_active=active == 'True')
+
+        user_type = self.request.GET.get('user_type', '')
+        if user_type:
+            queryset = queryset.filter(user_type__name=user_type)
+
         return queryset
 
 
 class UserUpdateView(UpdateView):
     model = User
-    fields = ['user_type']
+    fields = ['is_blocked']
     success_url = reverse_lazy('users_table')
     template_name = 'users/user_update_form.html'
-
-    def get(self, request, *args, **kwargs):
-        pk = kwargs.get('pk')
-        user_list = User.objects.filter(id=pk)
-        if pk and user_list.exists():
-            user = user_list.first()
-            if user.is_superuser:
-                return HttpResponse('You Are not Allowed this page')
-        return super().get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        instance = form.save(commit=False)
-        old_user_obj = User.objects.get(id=instance.id)
-        if old_user_obj.user_type != instance.user_type:
-            print('-----')
-            instance.groups.clear()
-            my_group = Group.objects.get(name=instance.user_type.name)
-            my_group.user_set.add(instance)
-        return super(UserUpdateView, self).form_valid(form)
 
 
 class ApplicationNotificationListView(ListView):
     model = ApplicationNotification
     template_name = 'users/application_notification_table.html'
     context_object_name = 'notifications'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        posts = self.get_queryset()
+        paginator = self.paginator_class(posts, self.paginate_by)
+
+        posts = paginator.page(page)
+        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = posts
+
+        return context
 
     def get_queryset(self):
         queryset = super().get_queryset().filter(status__name='pending')
+
         search = self.request.GET.get('search', '')
         if search.strip():
-            return queryset.filter(Q(user__first_name__contains=search))
+            return queryset.filter(Q(user__first_name__contains=search) | Q(user__last_name__contains=search))
+
+        request_for = self.request.GET.get('request_for', '')
+        if request_for:
+            noti_type = 'manager request' if request_for == 'manager' else 'editor request'
+            queryset = queryset.filter(notification_type__name=noti_type)
+
+
         return queryset
 
 
@@ -150,7 +198,7 @@ class EditorsPostsListView(ListView):
 
         # context for filters
         context['categories'] = Categorie.objects.all()
-        context['statuses'] = PostStatus.objects.filter(Q(name='rejected') | Q(name='pending'))
+        context['statuses'] = PostStatus.objects.all().exclude(Q(name='deleted'))
 
         return context
 
@@ -215,7 +263,17 @@ class EditorsPostUpdateView(UpdateView):
 
     def form_valid(self, form):
         post_obj = form.instance
-        post_obj.status = PostStatus.objects.get(name='pending')
+
+        pending_status = PostStatus.objects.get(name='pending')
+
+        if post_obj.status.name == 'rejected':
+            PostStatusRecord(
+                changed_by=self.request.user,
+                post=post_obj,
+                status=pending_status
+            ).save()
+
+        post_obj.status = pending_status
 
         # if image is updated then remove old image
         if 'image' in form.changed_data:
@@ -244,6 +302,13 @@ class EditorsPostDeleteView(FormView):
             deleted_by=self.request.user
         )
         post_obj.status = PostStatus.objects.get(name='deleted')
+
+        PostStatusRecord(
+            changed_by=self.request.user,
+            post=post_obj,
+            status=post_obj.status
+        ).save()
+
         post_recycle_obj.save()
         post_obj.save()
         return HttpResponseRedirect(self.get_success_url())
@@ -304,8 +369,6 @@ class ManagersPostsListView(ListView):
         if lis:
             queryset = queryset.filter(category__name__in=lis)
 
-
-
         if status:
             queryset = queryset.filter(status__name=status)
 
@@ -319,7 +382,6 @@ class ManagersPostsListView(ListView):
 
 class ManagersPostUpdateView(UpdateView):
     model = Post
-    # fields = ['title', 'content', 'category', 'image', 'status']
     form_class = ManagersPostUpdateForm
     success_url = reverse_lazy('managers_news_posts_table')
     template_name = 'news_blog/post_update_form.html'
@@ -385,6 +447,13 @@ class ManagersPostUpdateView(UpdateView):
                     pass
             elif new_status == 'pending':
                 pass
+
+            # if status changed then update record
+            PostStatusRecord(
+                changed_by=self.request.user,
+                post=post_obj,
+                status=post_obj.status
+            ).save()
 
         # if image is updated then remove old image
         if 'image' in form.changed_data:
@@ -539,6 +608,13 @@ class RestoreManagersNewsConfirmView(FormView):
         obj = PostRecycle.objects.get(id=pk)
         post = obj.post
         post.status = PostStatus.objects.get(name='inactive')
+
+        PostStatusRecord(
+            changed_by=self.request.user,
+            post=post,
+            status=post.status
+        ).save()
+
         post.save()
         obj.delete()
         return HttpResponseRedirect(self.get_success_url())
@@ -599,6 +675,12 @@ class RestoreEditorsNewsConfirmView(FormView):
         obj = PostRecycle.objects.get(id=pk)
         post = obj.post
         post.status = PostStatus.objects.get(name='pending')
+        PostStatusRecord(
+            changed_by=self.request.user,
+            post=post,
+            status=post.status
+        ).save()
+
         post.save()
         obj.delete()
         return HttpResponseRedirect(self.get_success_url())
@@ -670,5 +752,288 @@ class EditorsCommentListView(ListView):
         return queryset
 
 
+class AdminCategoriesListView(ListView):
+    model = Categorie
+    template_name = 'news_blog/admin_categories_listview.html'
+    context_object_name = 'categories'
+    paginate_by = 20
+    paginator_class = CustomPaginator
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminFollowsListView(ListView):
+    model = Follow
+    template_name = 'news_blog/admin_follows_listview.html'
+    context_object_name = 'follows'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminNotificationStatusListView(ListView):
+    model = NotificationStatus
+    template_name = 'news_blog/admin_notification_status_listview.html'
+    context_object_name = 'notification_statuses'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminNotificationTypeListView(ListView):
+    model = NotificationType
+    template_name = 'news_blog/admin_notification_type_listview.html'
+    context_object_name = 'notification_types'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPCMiddleListView(ListView):
+    model = PCMiddle
+    template_name = 'news_blog/admin_pcmiddle_listview.html'
+    context_object_name = 'pcmiddles'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostNotificationListView(ListView):
+    model = PostNotification
+    template_name = 'news_blog/admin_post_notification_listview.html'
+    context_object_name = 'post_notifications'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostRecycleListView(ListView):
+    model = PostRecycle
+    template_name = 'news_blog/admin_post_recycle_listview.html'
+    context_object_name = 'post_recycles'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostStatusRecordListView(ListView):
+    model = PostStatusRecord
+    template_name = 'news_blog/admin_post_status_record_listview.html'
+    context_object_name = 'post_status_records'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostStatusListView(ListView):
+    model = PostStatus
+    template_name = 'news_blog/admin_post_status_listview.html'
+    context_object_name = 'post_statuses'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostViewsListView(ListView):
+    model = PostView
+    template_name = 'news_blog/admin_post_view_listview.html'
+    context_object_name = 'post_views'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminPostsListView(ListView):
+    model = Post
+    template_name = 'news_blog/admin_posts_listview.html'
+    context_object_name = 'posts'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminUserTypeListView(ListView):
+    model = UserType
+    template_name = 'users/admin_user_type_listview.html'
+    context_object_name = 'user_types'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminManagerCommentsListView(ListView):
+    model = ManagerComment
+    template_name = 'custom_admin/admin_manager_comments_listview.html'
+    context_object_name = 'manager_comments'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
 

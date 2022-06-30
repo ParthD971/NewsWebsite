@@ -6,6 +6,20 @@ urlpatterns = [
     path('admin-panel/', views.AdminPanel.as_view(), name='admin_panel'),
     path('admin-panel/users-table/', views.UsersListView.as_view(), name='users_table'),
     path('admin-panel/users-table/change-user/<pk>/', views.UserUpdateView.as_view(), name='change_user'),
+    path('admin-panel/categories/', views.AdminCategoriesListView.as_view(), name='admin_categories_listview'),
+    path('admin-panel/follows/', views.AdminFollowsListView.as_view(), name='admin_follows_listview'),
+    path('admin-panel/notification-status/', views.AdminNotificationStatusListView.as_view(), name='admin_notification_status_listview'),
+    path('admin-panel/notification-types/', views.AdminNotificationTypeListView.as_view(), name='admin_notification_type_listview'),
+    path('admin-panel/pcmiddles/', views.AdminPCMiddleListView.as_view(), name='admin_pcmiddle_listview'),
+    path('admin-panel/post-notifications/', views.AdminPostNotificationListView.as_view(), name='admin_post_notification_listview'),
+    path('admin-panel/post-recycles/', views.AdminPostRecycleListView.as_view(), name='admin_post_recycle_listview'),
+    path('admin-panel/post-status-records/', views.AdminPostStatusRecordListView.as_view(), name='admin_post_status_records_listview'),
+    path('admin-panel/post-status/', views.AdminPostStatusListView.as_view(), name='admin_post_status_listview'),
+    path('admin-panel/post-views/', views.AdminPostViewsListView.as_view(), name='admin_post_view_listview'),
+    path('admin-panel/posts/', views.AdminPostsListView.as_view(), name='admin_posts_listview'),
+    path('admin-panel/user-types/', views.AdminUserTypeListView.as_view(), name='admin_user_type_listview'),
+    path('admin-panel/manager-comments/', views.AdminManagerCommentsListView.as_view(), name='admin_manager_comments_listview'),
+
 
 
     path('admin-panel/application-table/', views.ApplicationNotificationListView.as_view(), name='application_notification_table'),

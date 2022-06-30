@@ -126,5 +126,6 @@ class PostStatusRecord(models.Model):
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
     changed_on = models.DateTimeField(auto_now_add=True)
 
-
+    def __str__(self):
+        return ' | '.join([self.changed_by.first_name, self.status.name])
 
