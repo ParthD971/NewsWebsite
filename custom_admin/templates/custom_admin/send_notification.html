@@ -1,0 +1,84 @@
+{% extends "custom_admin/admin_panel.html" %}
+
+{% block css %}
+
+    <style>
+
+        .alert {
+            display: inline-block;
+        }
+        .invalid-feedback {
+            display: inline-block;
+            width: 100%;
+            margin-top: .25rem;
+            font-size: .875em;
+            color: #dc3545;
+        }
+
+    </style>
+
+
+{% endblock %}
+
+{% block body %}
+    <div class="container my-3">
+        <div class="row">
+            <div class="col">
+                <form method="POST" id="users_to_send_notification">
+                    {% csrf_token %}
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="ckbCheckAll" />
+                        <label class="form-check-label" for="{{ user.id }}">
+                            Check all
+                        </label>
+                    </div>
+
+                    <br>
+
+                    {% for user in users %}
+                        <div class="form-check">
+                          <input class="form-check-input checkBoxClass" name="checks[]" type="checkbox" value="{{ user.id }}" id="{{ user.id }}">
+                          <label class="form-check-label" for="{{ user.id }}">
+                            {{ user.first_name }}
+                          </label>
+                        </div>
+                    {% endfor %}
+                    {% if users_error %}
+                        <div class="invalid-feedback" >
+                            {{ users_error }}
+                        </div>
+                    {% endif %}
+
+
+                    <br>
+                    <br>
+                    <div class="form-floating">
+                      <textarea class="form-control" id="message" name="message" style="height: 100px"></textarea>
+                      <label for="message">Message</label>
+                    </div>
+                    {% if message_error %}
+                        <div class="invalid-feedback">
+                            {{ message_error }}
+                        </div>
+                    {% endif %}
+                    <br>
+                    <input type="submit" class="btn btn-info" value="Send">
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+{% block js %}
+
+    <script>
+        $(document).ready(function () {
+            $("#ckbCheckAll").click(function () {
+                $(".checkBoxClass").prop('checked', $(this).prop('checked'));
+            });
+        });
+    </script>
+
+
+{% endblock %}

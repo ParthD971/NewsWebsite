@@ -19,6 +19,9 @@ urlpatterns = [
     path('admin-panel/posts/', views.AdminPostsListView.as_view(), name='admin_posts_listview'),
     path('admin-panel/user-types/', views.AdminUserTypeListView.as_view(), name='admin_user_type_listview'),
     path('admin-panel/manager-comments/', views.AdminManagerCommentsListView.as_view(), name='admin_manager_comments_listview'),
+    path('admin-panel/admin-notifications/', views.AdminNotificationListView.as_view(), name='admin_notification_listview'),
+
+    path('admin-panel/send-notification/', views.AdminSendNotificationView.as_view(), name='send-notification'),
 
 
 

@@ -9,6 +9,7 @@ from .models import (
     Categorie,
     PostStatus
 )
+from custom_admin.models import AdminNotification
 from django.views.generic import ListView, DetailView, View
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
@@ -76,7 +77,7 @@ class HomeView(ListView):
         context['trending_posts'] = Post.objects.filter(status__name='active').order_by('-views')[:3]
         context['categories'] = Categorie.objects.all()
         context['authors'] = Post.objects.order_by('author_display_name').values('author_display_name').distinct()
-
+        context['admin_notification'] = True
         return context
 
 
@@ -183,9 +184,6 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
-from django.urls import resolve
-
-
 class FollowView(View):
     def get(self, request, **kwargs):
         user = request.user
@@ -254,16 +252,7 @@ class PostNotificationListView(ListView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(user=self.request.user, seen=True)
-        # search = self.request.GET.get('search', '')
-        # editor_display_name = self.request.GET.get('editor', '').strip()
-
-        # if editor_display_name:
-        #     queryset = queryset.filter(author_display_name=editor_display_name)
-        #
-        # if search:
-        #     queryset = queryset.filter(Q(title__contains=search) | Q(content__contains=search))
-        return queryset
+        return super().get_queryset().filter(user=self.request.user, seen=True)
 
 
 class NotificationSeenView(View):
@@ -272,11 +261,10 @@ class NotificationSeenView(View):
         post_notifications = PostNotification.objects.filter(id=noti_id)
         if not post_notifications.exists():
             return JsonResponse({'msg': 'Does not exists'})
-        else:
-            post_notification = post_notifications.first()
-            post_notification.seen = True
-            post_notification.save()
 
+        post_notification = post_notifications.first()
+        post_notification.seen = True
+        post_notification.save()
         return JsonResponse({'msg': 'Done'})
 
 
@@ -284,21 +272,22 @@ class AddViewsView(View):
     def get(self, request, **kwargs):
         post_id = request.GET.get('pk', '')
         posts = Post.objects.filter(id=post_id)
+
         if not request.user.is_authenticated:
             return JsonResponse({'msg': 'views not added because user not logged in.'})
         if not posts.exists():
             return JsonResponse({'msg': 'views not added because post not valid.'})
-        else:
-            post = posts.first()
-            post_view = PostView.objects.filter(user=request.user, post=post)
-            if post_view.exists():
-                return JsonResponse({'msg': 'views not added because already user have seen this post.'})
-            PostView(
-                user=request.user,
-                post=post
-            ).save()
-            post.views += 1
-            post.save()
+
+        post = posts.first()
+        post_view = PostView.objects.filter(user=request.user, post=post)
+        if post_view.exists():
+            return JsonResponse({'msg': 'views not added because already user have seen this post.'})
+        PostView(
+            user=request.user,
+            post=post
+        ).save()
+        post.views += 1
+        post.save()
         return JsonResponse({'msg': 'views added'})
 
 
@@ -318,6 +307,33 @@ class PremiumApplyView(SuccessMessageMixin, FormView):
         user.save()
         return super().form_valid(form)
 
+
+class NotificationFromAdminView(View):
+    def get(self, request):
+        context = {}
+
+        if request.user.is_authenticated:
+            context['notifications'] = AdminNotification.objects.filter(receiver=request.user).order_by('-id')
+
+        return render(
+            request,
+            template_name='news_blog/notification_from_admin.html',
+            context=context
+        )
+
+
+class NotificationFromAdminSeenView(View):
+    def get(self, request, **kwargs):
+        noti_id = request.GET.get('pk', '')
+        admin_notifications = AdminNotification.objects.filter(id=noti_id)
+        if not admin_notifications.exists():
+            return JsonResponse({'msg': 'Does not exists'})
+        else:
+            admin_notifications = admin_notifications.first()
+            admin_notifications.seen = True
+            admin_notifications.save()
+
+        return JsonResponse({'msg': 'Done'})
 
 
 def run_scraper(request):

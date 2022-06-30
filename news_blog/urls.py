@@ -12,6 +12,8 @@ urlpatterns = [
     path('manager-application/', views.ManagerApplicationView.as_view(), name='apply_for_manager'),
     path('editor-application/', views.EditorApplicationView.as_view(), name='apply_for_editor'),
     path('premium-user-application/', views.PremiumApplyView.as_view(), name='apply_for_premium_user'),
+    path('notification-from-admin/', views.NotificationFromAdminView.as_view(), name='notification_from_admin'),
+    path('notification-from-admin-seen/', views.NotificationFromAdminSeenView.as_view(), name='admin_notification_seen'),
 ]
 
 

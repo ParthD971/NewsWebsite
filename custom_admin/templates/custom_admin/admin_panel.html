@@ -7,9 +7,14 @@
 
 {% block body %}
     <div class="container my-3">
+
         <ul>
+            <a href="{% url 'send-notification' %}" class="btn btn-primary">Send Notification</a>
+            <br>
+            <br>
             <h6>CUSTOM_ADMIN</h6>
             <li><a href="{% url 'admin_manager_comments_listview' %}">Manager comments</a></li>
+            <li><a href="{% url 'admin_notification_listview' %}">Admin notifications</a></li>
             <br>
             <h6>NEWS_BLOG</h6>
             <li><a href="{% url 'application_notification_table' %}">Application Notification</a></li>

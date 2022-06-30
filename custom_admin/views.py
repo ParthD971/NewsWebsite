@@ -33,7 +33,7 @@ from .forms import (
 )
 from datetime import datetime
 from news_blog.constants import DEFAULT_IMAGE_NAME
-from .models import ManagerComment
+from .models import ManagerComment, AdminNotification
 
 
 # login required and must be admin superuser
@@ -138,7 +138,6 @@ class ApplicationNotificationListView(ListView):
         if request_for:
             noti_type = 'manager request' if request_for == 'manager' else 'editor request'
             queryset = queryset.filter(notification_type__name=noti_type)
-
 
         return queryset
 
@@ -257,15 +256,12 @@ class PostsCreateView(CreateView):
 class EditorsPostUpdateView(UpdateView):
     model = Post
     form_class = EditorsPostUpdateForm
-    # fields = ['title', 'content', 'category', 'image', 'premium']
     success_url = reverse_lazy('editors_news_posts_table')
     template_name = 'news_blog/post_update_form.html'
 
     def form_valid(self, form):
         post_obj = form.instance
-
         pending_status = PostStatus.objects.get(name='pending')
-
         if post_obj.status.name == 'rejected':
             PostStatusRecord(
                 changed_by=self.request.user,
@@ -346,7 +342,6 @@ class ManagersPostsListView(ListView):
         # context for filters
         context['categories'] = Categorie.objects.all()
         context['statuses'] = PostStatus.objects.all().exclude(Q(name='rejected') | Q(name='deleted'))
-        # context['authors'] = self.get_queryset().order_by('author_display_name').values('author_display_name').distinct()
         context['authors'] = Post.objects.order_by('author_display_name').values(
             'author_display_name').distinct()
 
@@ -548,7 +543,6 @@ class ManagersUsersListView(ListView):
 class ManagersUserUpdateView(UpdateView):
     model = User
     form_class = ManagersUserUpdateForm
-    # fields = ['is_blocked']
     success_url = reverse_lazy('managers_users_table')
     template_name = 'users/managers_user_update_form.html'
 
@@ -572,9 +566,6 @@ class ManagersRestorePostListView(ListView):
         users = paginator.page(page)
         users.adjusted_elided_pages = paginator.get_elided_page_range(page)
         context['page_obj'] = users
-
-        # context for filter
-        # context['user_types'] = UserType.objects.all()
 
         return context
 
@@ -1036,4 +1027,64 @@ class AdminManagerCommentsListView(ListView):
         context['page_obj'] = objects
 
         return context
+
+
+class AdminNotificationListView(ListView):
+    model = AdminNotification
+    template_name = 'custom_admin/admin_notification_listview.html'
+    context_object_name = 'notifications'
+    paginate_by = 20
+    paginator_class = CustomPaginator
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # context for pagination
+        page = self.request.GET.get('page', 1)
+        objects = self.get_queryset()
+        paginator = self.paginator_class(objects, self.paginate_by)
+
+        objects = paginator.page(page)
+        objects.adjusted_elided_pages = paginator.get_elided_page_range(page)
+        context['page_obj'] = objects
+
+        return context
+
+
+class AdminSendNotificationView(View):
+    def get(self, request):
+        context = {
+            'users': User.objects.all().exclude(id=request.user.id)
+        }
+        return render(
+            request,
+            template_name='custom_admin/send_notification.html',
+            context=context
+        )
+
+    def post(self, request):
+        send_to_user_ids = [int(user_id) for user_id in request.POST.getlist('checks[]')]
+        message = request.POST.get('message').strip()
+        error = False
+        context = {}
+        if not message:
+            context['message_error'] = 'Message cannot be empty.'
+            error = True
+        if not send_to_user_ids:
+            context['users_error'] = 'Must select at-lease one user.'
+            error = True
+
+        if error:
+            context['users'] = User.objects.all().exclude(id=request.user.id)
+            return render(
+                request,
+                template_name='custom_admin/send_notification.html',
+                context=context
+            )
+
+        notis = [AdminNotification(receiver_id=user_id,message=message) for user_id in send_to_user_ids]
+        AdminNotification.objects.bulk_create(notis)
+
+        messages.success(request, 'Message sent successfully.')
+        return redirect('admin_panel')
 

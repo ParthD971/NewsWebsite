@@ -1,7 +1,7 @@
 from django.db import models
 from users.models import CustomUser as User
 from .constants import POST_TYPE_CHOICES, POST_IMAGE_UPLOAD_TO, DEFAULT_IMAGE_PATH
-from datetime import date, datetime
+from django.utils import timezone
 
 
 class Categorie(models.Model):
@@ -33,7 +33,7 @@ class Post(models.Model):
     title = models.CharField(max_length=200, unique=True, blank=False, null=False)
     author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     content = models.TextField(blank=False, null=False)
-    created_on = models.DateField(default=date.today)
+    created_on = models.DateField(default=timezone.now)
     views = models.IntegerField(default=0, blank=False, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
     category = models.ManyToManyField(Categorie, through='PCMiddle', null=True)
@@ -51,9 +51,10 @@ class PCMiddle(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     category = models.ForeignKey(Categorie, on_delete=models.CASCADE)
 
+
 class PostRecycle(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
-    recycle_created_on = models.DateField(auto_now_add=True)
+    recycle_created_on = models.DateField(default=timezone.now)
     deleted_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
 
     def __str__(self):
@@ -117,14 +118,14 @@ class Follow(models.Model):
 class PostView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
-    viewed_on = models.DateField(default=date.today)
+    viewed_on = models.DateField(default=timezone.now)
 
 
 class PostStatusRecord(models.Model):
     changed_by = models.ForeignKey(User, on_delete=models.CASCADE, null=False)
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
-    changed_on = models.DateTimeField(auto_now_add=True)
+    changed_on = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return ' | '.join([self.changed_by.first_name, self.status.name])

@@ -33,6 +33,15 @@
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'home' %}">Home</a>
             </li>
+
+{#          {% if user.user_type.name == 'editor' or user.user_type.name == 'manager' %}#}
+          {% if admin_notification %}
+            <li class="nav-item">
+              <a class="nav-link active" aria-current="page" href="{% url 'notification_from_admin' %}">Notification from Admin</a>
+            </li>
+          {% endif %}
+{#          {% endif %}#}
+
               {% if user.is_superuser %}
                 <li class="nav-item">
                   <a class="nav-link active" aria-current="page" href="{% url 'admin_panel' %}">Admin Panel</a>

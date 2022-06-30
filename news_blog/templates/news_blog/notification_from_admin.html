@@ -1,0 +1,50 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}Notification - admin{% endblock %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    <div class="container my-3">
+        {% if notifications %}
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Message</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Seen</th>
+                </tr>
+              </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                        <tr>
+                            <td>{{ notification.message }}</td>
+                            <td>{{ notification.time }}</td>
+                            <td>{% if notification.seen %}Marked Read{% else %}<span id="{{ notification.id }}" class="btn btn-primary mark-read">Mark Read</span>{% endif %}</td>
+                          </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            No Notifications
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block js %}
+
+    <script>
+
+        $('.mark-read').click(function () {
+            let id = this.id;
+            $.ajax({
+                url: "{% url 'admin_notification_seen' %}?pk="+id,
+                success: function(result){
+                    location.reload();
+                }
+            });
+        })
+
+    </script>
+
+{% endblock %}
