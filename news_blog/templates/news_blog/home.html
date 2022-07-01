@@ -17,6 +17,10 @@
             width: 100%;
             margin: 0 auto;
         }
+        .dropdown-menu[data-bs-popper] {
+            left: auto;
+            right: 0;
+        }
     </style>
 
 {% endblock %}
@@ -30,6 +34,7 @@
         <ul class="dropdown-menu dropdown-menu-light" style="min-width: 20rem;" aria-labelledby="dropdownMenuButton2">
         {% if notifications %}
             {% for noti in notifications %}
+                {% if forloop.counter <= 5 %}
                 <li>
                     <div class="container">
                         <div class="row" id="{{ noti.id }}">
@@ -37,7 +42,7 @@
                                 {% if noti.notification_type.name == 'post added' %}
                                     <a class="dropdown-item noti-item" href="{% url 'news_detail' pk=noti.post.id %}">
                                         <p>
-                                            <strong>{{ noti.post.title|slice:":25" }}{% if noti.post.title|length > 25 %}...{% endif %}</strong>
+                                            <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
                                             <br>
                                             By {{ noti.post.author_display_name }}
                                         </p>
@@ -45,7 +50,7 @@
                                 {% elif noti.notification_type.name == 'post deleted' %}
                                     <span class="dropdown-item">
                                         Deleted:
-                                        <strong>{{ noti.post.title|slice:":25" }}{% if noti.post.title|length > 25 %}...{% endif %}</strong>
+                                        <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
                                         <br>
                                         By {{ noti.post.author_display_name }}
                                     </span>
@@ -59,6 +64,7 @@
                     </div>
 
                 </li>
+                {% endif %}
             {% endfor %}
         {% else %}
             <span class="dropdown-item">

@@ -10,38 +10,65 @@
         <div class="col-md-10">
             {% if unseen_notifications %}
                 <h2>Un-Read Notifications</h2>
-                <ul>
-                    {% for notification in unseen_notifications %}
-                        <li>
-                            <a class="noti-item" id="{{ notification.id }}" href="{% url 'news_detail' pk=notification.post.id %}">
-                                <p>
-                                    <strong>{{ notification.post.title|slice:":25" }}{% if notification.post.title|length > 25 %}...{% endif %}</strong>
-                                    <br>
-                                    By {{ notification.post.author_display_name }}
-                                </p>
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Post title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Mark read</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for noti in unseen_notifications %}
+                            <tr id="{{ noti.id }}">
+                                <td>
+                                    <a href="{% url 'news_detail' pk=noti.post.id %}">
+                                        <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ noti.post.author_display_name }}</td>
+                                <td>{% if noti.notification_type.name == 'post added' %}Added Post{% elif noti.notification_type.name == 'post deleted' %}Deleted{% endif %}</td>
+                                <td>
+                                    <span class="btn btn-secondary px-0 noti-item">Mark Read</span>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             {% else %}
                 <h2>No Un-Read Notifications</h2>
             {% endif %}
 
             {% if notifications %}
                 <h2>Old Notifications</h2>
-                <ul>
-                    {% for notification in notifications %}
-                        <li>
-                        <a href="{% url 'news_detail' pk=notification.post.id %}">
-                            <p>
-                                <strong>{{ notification.post.title|slice:":25" }}{% if notification.post.title|length > 25 %}...{% endif %}</strong>
-                                <br>
-                                By {{ notification.post.author_display_name }}
-                            </p>
-                        </a>
-                    </li>
-                    {% endfor %}
-                </ul>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Post title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Action</th>
+                            <th scope="col">Mark read</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for noti in notifications %}
+                            <tr id="{{ noti.id }}">
+                                <td>
+                                    <a href="{% url 'news_detail' pk=noti.post.id %}">
+                                        <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
+                                    </a>
+                                </td>
+                                <td>{{ noti.post.author_display_name }}</td>
+                                <td>{% if noti.notification_type.name == 'post added' %}Added Post{% elif noti.notification_type.name == 'post deleted' %}Deleted{% endif %}</td>
+                                <td>
+                                    Marked Read
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
                 {% if page_obj.has_previous %}
                     <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.previous_page_number }}">
                         Previous Page
@@ -76,11 +103,11 @@
 
     <script>
         $(".noti-item").click(function(){
-            let noti_id = $(this).attr('id');
+            let noti_id = $(this).parent().parent().attr('id');
             $.ajax({
                 url: "{% url 'notification_seen' %}?pk="+noti_id,
                 success: function(result){
-
+                    location.reload();
                 }
             });
         });
