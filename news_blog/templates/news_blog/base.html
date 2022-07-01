@@ -37,26 +37,26 @@
 {#          {% if user.user_type.name == 'editor' or user.user_type.name == 'manager' %}#}
           {% if admin_notification %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'notification_from_admin' %}">Notification from Admin</a>
+              <a class="nav-link active" aria-current="page" href="{% url 'notification-from-admin' %}">Notification from Admin</a>
             </li>
           {% endif %}
 {#          {% endif %}#}
 
               {% if user.is_superuser %}
                 <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="{% url 'admin_panel' %}">Admin Panel</a>
+                  <a class="nav-link active" aria-current="page" href="{% url 'admin-panel' %}">Admin Panel</a>
                 </li>
               {% elif user.is_staff %}
                     {% if user.user_type.name == 'manager' %}
                         <li class="nav-item">
-                          <a class="nav-link active" aria-current="page" href="{% url 'manager_panel' %}">Manager Panel</a>
+                          <a class="nav-link active" aria-current="page" href="{% url 'manager-panel' %}">Manager Panel</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link active" aria-current="page" href="{% url 'run_scraper' %}">Scrap Data</a>
+                          <a class="nav-link active" aria-current="page" href="{% url 'run-scraper' %}">Scrap Data</a>
                         </li>
                     {% elif user.user_type.name == 'editor' %}
                         <li class="nav-item">
-                          <a class="nav-link active" aria-current="page" href="{% url 'editor_panel' %}">Editor Panel</a>
+                          <a class="nav-link active" aria-current="page" href="{% url 'editor-panel' %}">Editor Panel</a>
                         </li>
                     {% endif %}
               {% endif %}
@@ -92,12 +92,12 @@
                             <li><a class="dropdown-item" aria-current="page" href="{% url 'profile' pk=user.id %}">Profile</a></li>
 
                               {% if not user.is_staff %}
-                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply_for_manager' %}">Apply for Manager</a></li>
-                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply_for_editor' %}">Apply for Editor</a></li>
+                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply-for-manager' %}">Apply for Manager</a></li>
+                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply-for-editor' %}">Apply for Editor</a></li>
                               {% endif %}
 
                               {% if not user.is_premium_user %}
-                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply_for_premium_user' %}">Apply for Premium User</a></li>
+                                  <li><a class="dropdown-item" aria-current="page" href="{% url 'apply-for-premium-user' %}">Apply for Premium User</a></li>
                               {% endif %}
 
                           </ul>

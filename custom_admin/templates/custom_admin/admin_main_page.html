@@ -1,0 +1,40 @@
+{% extends "news_blog/base.html" %}
+
+{% block title %}Admin Panel{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block body %}
+    <div class="container my-3">
+
+        <ul>
+            <a href="{% url 'admin-send-notification' %}" class="btn btn-primary">Send Notification</a>
+            <br>
+            <br>
+            <h6>CUSTOM_ADMIN</h6>
+            <li><a href="{% url 'admin-manager-comment-list' %}">Manager comments</a></li>
+            <li><a href="{% url 'admin-notification-list' %}">Admin notifications</a></li>
+            <br>
+            <h6>NEWS_BLOG</h6>
+            <li><a href="{% url 'admin-application-notification-list' %}">Application Notification</a></li>
+            <li><a href="{% url 'admin-categorie-list' %}">Categories</a></li>
+            <li><a href="{% url 'admin-follow-list' %}">Follows</a></li>
+            <li><a href="{% url 'admin-notification-status-list' %}">Notification status</a></li>
+            <li><a href="{% url 'admin-notification-type-list' %}">Notification types</a></li>
+            <li><a href="{% url 'admin-pcmiddle-list' %}">Pc middles</a></li>
+            <li><a href="{% url 'admin-post-notification-list' %}">Post notifications</a></li>
+            <li><a href="{% url 'admin-post-recycle-list' %}">Post recycles</a></li>
+            <li><a href="{% url 'admin-post-status-record-list' %}">Post status records</a></li>
+            <li><a href="{% url 'admin-post-status-list' %}">Post status</a></li>
+            <li><a href="{% url 'admin-post-view-list' %}">Post views</a></li>
+            <li><a href="{% url 'admin-post-list' %}">Posts</a></li>
+            <br>
+            <h6>Users</h6>
+            <li><a href="{% url 'admin-user-type-list' %}">User types</a></li>
+            <li><a href="{% url 'admin-user-list' %}">Users</a></li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block js %}{% endblock %}

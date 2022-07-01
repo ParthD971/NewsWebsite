@@ -1,4 +1,4 @@
-from django.db.models.signals import pre_delete, post_save
+from django.db.models.signals import pre_delete
 from django.dispatch.dispatcher import receiver
 from news_blog.models import Post
 from news_blog.constants import DEFAULT_IMAGE_NAME

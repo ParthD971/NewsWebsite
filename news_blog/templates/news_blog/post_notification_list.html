@@ -23,7 +23,7 @@
                         {% for noti in unseen_notifications %}
                             <tr id="{{ noti.id }}">
                                 <td>
-                                    <a href="{% url 'news_detail' pk=noti.post.id %}">
+                                    <a href="{% url 'post-detail' pk=noti.post.id %}">
                                         <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
                                     </a>
                                 </td>
@@ -55,7 +55,7 @@
                         {% for noti in notifications %}
                             <tr id="{{ noti.id }}">
                                 <td>
-                                    <a href="{% url 'news_detail' pk=noti.post.id %}">
+                                    <a href="{% url 'post-detail' pk=noti.post.id %}">
                                         <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
                                     </a>
                                 </td>
@@ -70,7 +70,7 @@
                 </table>
 
                 {% if page_obj.has_previous %}
-                    <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.previous_page_number }}">
+                    <a href="{% url 'manager-post-list' %}?page={{ page_obj.previous_page_number }}">
                         Previous Page
                     </a>
                 {% endif%}
@@ -79,7 +79,7 @@
                         {{page_number}}
                     {% else %}
                         <a
-                            href="{% url 'managers_news_posts_table' %}?page={{ page_number }}"
+                            href="{% url 'manager-post-list' %}?page={{ page_number }}"
                             class="{% if page_number == page_obj.number %}current{% endif %}"
                         >
                             {{ page_number }}
@@ -87,7 +87,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                    <a href="{% url 'managers_news_posts_table' %}?page={{ page_obj.next_page_number }}">
+                    <a href="{% url 'manager-post-list' %}?page={{ page_obj.next_page_number }}">
                         Next Page
                     </a>
                 {% endif%}
@@ -105,7 +105,7 @@
         $(".noti-item").click(function(){
             let noti_id = $(this).parent().parent().attr('id');
             $.ajax({
-                url: "{% url 'notification_seen' %}?pk="+noti_id,
+                url: "{% url 'notification-seen' %}?pk="+noti_id,
                 success: function(result){
                     location.reload();
                 }

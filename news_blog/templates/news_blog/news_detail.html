@@ -53,7 +53,7 @@
 
     <script>
         $.ajax({
-            url: "{% url 'add_views' %}?pk="+{{ post.id }},
+            url: "{% url 'add-views' %}?pk="+{{ post.id }},
             success: function(result){
                 console.log(result)
             }

@@ -1,0 +1,16 @@
+{% extends "custom_admin/editor_main_page.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    <div class="container my-3">
+        {% load crispy_forms_tags %}
+        <form method = "POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" value="Create">
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}{% endblock %}

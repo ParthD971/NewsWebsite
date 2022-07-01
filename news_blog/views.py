@@ -7,7 +7,6 @@ from .models import (
     PostNotification,
     PostView,
     Categorie,
-    PostStatus
 )
 from custom_admin.models import AdminNotification
 from django.views.generic import ListView, DetailView, View
@@ -21,8 +20,10 @@ from django.db.models import Q
 from django.shortcuts import redirect, render
 from users.models import CustomUser as User
 import os
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
 from datetime import datetime
+from .permissions import GroupRequiredMixin
+from news_blog.helpers import get_paginated_context, is_mark_seen_success
 
 
 class HomeView(ListView):
@@ -36,7 +37,7 @@ class HomeView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset().filter(status__name='active')
 
-        # for serach filter
+        # for search filter
         search = self.request.GET.get('search', '').strip()
         if search:
             return queryset.filter(Q(title__contains=search) | Q(content__contains=search))
@@ -53,8 +54,8 @@ class HomeView(ListView):
             created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
             queryset = queryset.filter(created_on=created_on)
 
-        caterories = Categorie.objects.all()
-        lis = [cat.name for cat in caterories if self.request.GET.get(cat.name, '').strip()]
+        categories = Categorie.objects.all()
+        lis = [cat.name for cat in categories if self.request.GET.get(cat.name, '').strip()]
         if lis:
             queryset = queryset.filter(category__name__in=lis)
 
@@ -62,13 +63,14 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        page = self.request.GET.get('page', 1)
-        posts = self.get_queryset()
-        paginator = self.paginator_class(posts, self.paginate_by)
 
-        posts = paginator.page(page)
-        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
-        context['page_obj'] = posts
+        context = get_paginated_context(
+            context=context,
+            request=self.request,
+            queryset=self.get_queryset(),
+            paginator_class=self.paginator_class,
+            paginate_by=self.paginate_by
+        )
 
         if self.request.user.is_authenticated and self.request.user.user_type and self.request.user.user_type.name == 'consumer':
             context['notifications'] = PostNotification.objects.filter(user=self.request.user, seen=False).order_by(
@@ -86,16 +88,20 @@ class PostDetailView(DetailView):
     context_object_name = 'post'
     template_name = 'news_blog/news_detail.html'
 
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.object = None
+
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
 
         if self.object.status.name != 'active':
-            self.template_name = '404.html'
+            return HttpResponseNotFound('Page Not Active')
 
         if self.object.premium:
             if not (request.user.is_authenticated and request.user.is_premium_user):
-                return redirect('apply_for_premium_user')
+                return redirect('apply-for-premium-user')
 
         return self.render_to_response(context)
 
@@ -108,7 +114,7 @@ class PostDetailView(DetailView):
             post = Post.objects.get(id=post_id)
             author = post.author
             if author:
-                # manaul
+                # manual
                 if Follow.objects.filter(user=user, author=author).exists():
                     context['following'] = True
                 else:
@@ -123,11 +129,11 @@ class PostDetailView(DetailView):
         return context
 
 
-# login required
-class ManagerApplicationView(SuccessMessageMixin, FormView):
+class ManagerApplicationView(GroupRequiredMixin, SuccessMessageMixin, FormView):
     template_name = 'news_blog/manager_application.html'
     form_class = ManagerApplicationForm
     success_url = reverse_lazy('home')
+    group_required = [u'consumer']
 
     def get_form_kwargs(self):
         kwargs = super(ManagerApplicationView, self).get_form_kwargs()
@@ -136,29 +142,25 @@ class ManagerApplicationView(SuccessMessageMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
-        if form.cleaned_data.get('check'):
-            try:
-                current_user = self.request.user
-                notification_type = NotificationType.objects.get(name='manager request')
-                status = NotificationStatus.objects.get(name='pending')
-                application_notification = ApplicationNotification(user=current_user,
-                                                                   notification_type=notification_type, status=status)
-                application_notification.save()
-                messages.success(self.request, 'Application for manager submitted.')
-            except NotificationType.DoesNotExist as e:
-                messages.error(self.request, 'NotificationType not exists: ' + e)
-            except NotificationStatus.DoesNotExist as e:
-                messages.error(self.request, 'NotificationStatus not exists: ' + e)
-        else:
-            messages.error(self.request, 'Form not valid')
+        current_user = self.request.user
+        notification_type = NotificationType.objects.get(name='manager request')
+        status = NotificationStatus.objects.get(name='pending')
+        application_notification = ApplicationNotification(
+            user=current_user,
+            notification_type=notification_type,
+            status=status
+        )
+        application_notification.save()
+        messages.success(self.request, 'Application for manager submitted.')
+
         return super().form_valid(form)
 
 
-# login required
-class EditorApplicationView(SuccessMessageMixin, FormView):
+class EditorApplicationView(GroupRequiredMixin, SuccessMessageMixin, FormView):
     template_name = 'news_blog/editor_application.html'
     form_class = EditorApplicationForm
     success_url = reverse_lazy('home')
+    group_required = [u'consumer']
 
     def get_form_kwargs(self):
         kwargs = super(EditorApplicationView, self).get_form_kwargs()
@@ -184,7 +186,9 @@ class EditorApplicationView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
-class FollowView(View):
+class FollowView(GroupRequiredMixin, View):
+    group_required = [u'consumer']
+
     def get(self, request, **kwargs):
         user = request.user
         author_id = request.GET.get('author_id', '')
@@ -202,11 +206,9 @@ class FollowView(View):
                     # un follow it
                     follow_obj.first().delete()
                     messages.success(request, f'Un-followed {author.first_name}')
-                    print('un-following')
                 else:
                     Follow(author=author, user=user, author_name=author.first_name).save()
                     messages.success(request, f'Started following {author.first_name}')
-                    print('following')
         elif author_name:
             # validating if this name exists
             if not Post.objects.filter(author_display_name=author_name).exists():
@@ -218,54 +220,47 @@ class FollowView(View):
                     # un follow it
                     follow_obj.first().delete()
                     messages.success(request, f'Un-followed {author_name}')
-                    print('un-following')
                 else:
                     Follow(user=user, author_name=author_name).save()
                     messages.success(request, f'Started following {author_name}')
-                    print('following')
 
-        return redirect('news_detail', pk=self.kwargs.get('pk', ''))
+        return redirect('post-detail', pk=self.kwargs.get('pk', ''))
 
 
-class PostNotificationListView(ListView):
+class PostNotificationListView(GroupRequiredMixin, ListView):
     model = PostNotification
     template_name = 'news_blog/post_notification_list.html'
     context_object_name = 'notifications'
     paginate_by = 20
     ordering = ['-id']
     paginator_class = CustomPaginator
+    group_required = [u'consumer']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # context for pagination
-        page = self.request.GET.get('page', 1)
-        posts = self.get_queryset()
-        paginator = self.paginator_class(posts, self.paginate_by)
-
-        posts = paginator.page(page)
-        posts.adjusted_elided_pages = paginator.get_elided_page_range(page)
-        context['page_obj'] = posts
+        context = get_paginated_context(
+            context=context,
+            request=self.request,
+            queryset=self.get_queryset(),
+            paginator_class=self.paginator_class,
+            paginate_by=self.paginate_by
+        )
 
         context['unseen_notifications'] = PostNotification.objects.filter(user=self.request.user, seen=False)
-
         return context
 
     def get_queryset(self):
         return super().get_queryset().filter(user=self.request.user, seen=True)
 
 
-class NotificationSeenView(View):
-    def get(self, request, **kwargs):
-        noti_id = request.GET.get('pk', '')
-        post_notifications = PostNotification.objects.filter(id=noti_id)
-        if not post_notifications.exists():
-            return JsonResponse({'msg': 'Does not exists'})
+class NotificationSeenView(GroupRequiredMixin, View):
+    group_required = [u'consumer']
 
-        post_notification = post_notifications.first()
-        post_notification.seen = True
-        post_notification.save()
-        return JsonResponse({'msg': 'Done'})
+    def get(self, request, **kwargs):
+        if is_mark_seen_success(request=request, notification_class=PostNotification):
+            return JsonResponse({'msg': 'Done'})
+        return JsonResponse({'msg': 'Does not exists'})
 
 
 class AddViewsView(View):
@@ -295,6 +290,7 @@ class PremiumApplyView(SuccessMessageMixin, FormView):
     template_name = 'news_blog/premium_user_application.html'
     form_class = PremiumApplicationForm
     success_url = reverse_lazy('home')
+    group_required = [u'consumer']
 
     def get_form_kwargs(self):
         kwargs = super(PremiumApplyView, self).get_form_kwargs()
@@ -308,7 +304,9 @@ class PremiumApplyView(SuccessMessageMixin, FormView):
         return super().form_valid(form)
 
 
-class NotificationFromAdminView(View):
+class NotificationFromAdminView(GroupRequiredMixin, View):
+    group_required = [u'consumer', u'manager', u'editor']
+
     def get(self, request):
         context = {}
 
@@ -322,20 +320,18 @@ class NotificationFromAdminView(View):
         )
 
 
-class NotificationFromAdminSeenView(View):
+class NotificationFromAdminSeenView(GroupRequiredMixin, View):
+    group_required = [u'consumer', u'manager', u'editor']
+
     def get(self, request, **kwargs):
-        noti_id = request.GET.get('pk', '')
-        admin_notifications = AdminNotification.objects.filter(id=noti_id)
-        if not admin_notifications.exists():
-            return JsonResponse({'msg': 'Does not exists'})
-        else:
-            admin_notifications = admin_notifications.first()
-            admin_notifications.seen = True
-            admin_notifications.save()
+        if is_mark_seen_success(request=request, notification_class=AdminNotification):
+            return JsonResponse({'msg': 'Done'})
+        return JsonResponse({'msg': 'Does not exists'})
 
+
+class RunScrapper(GroupRequiredMixin, View):
+    group_required = [u'manager']
+
+    def get(self, request):
+        os.system('python manage.py crawl "sports"')
         return JsonResponse({'msg': 'Done'})
-
-
-def run_scraper(request):
-    os.system('python manage.py crawl "sports"')
-    return JsonResponse({'msg': 'Done'})

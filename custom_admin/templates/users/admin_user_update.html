@@ -1,0 +1,27 @@
+{% extends "custom_admin/admin_main_page.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+    <div class="container my-3">
+
+        first_name - {{ object.first_name }} <br>
+        last_name - {{ object.last_name }} <br>
+        age - {{ object.age }} <br>
+        user_type - {{ object.user_type.name }} <br>
+        email - {{ object.email }} <br>
+        is_blocked - {{ object.is_blocked }} <br>
+        is_premium_user - {{ object.is_premium_user }} <br>
+        is_active - {{ object.is_active }} <br> <br>
+
+
+        {% load crispy_forms_tags %}
+        <form method = "POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" value="Save">
+        </form>
+    </div>
+{% endblock %}
+
+{% block js %}{% endblock %}

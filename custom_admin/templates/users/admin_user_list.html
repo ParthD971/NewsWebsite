@@ -1,0 +1,144 @@
+{% extends "custom_admin/admin_main_page.html" %}
+
+{% block css %}{% endblock %}
+
+
+{% block search %}
+
+    <form method="GET" class="d-flex">
+        <input class="form-control me-2" type="search" name='search' placeholder="Search" aria-label="Search">
+        <button class="btn btn-outline-success" type="submit">Search</button>
+    </form>
+
+{% endblock %}
+
+
+
+{% block body %}
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-10">
+            {% if users %}
+                <ul>
+                    {% for user in users %}
+                        <li>
+                            <a href="{% url 'admin-user-update' pk=user.id %}">
+                                {{ user.user_type.name }} - {{ user.first_name }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'admin-user-list' %}?page={{ page_obj.previous_page_number }}">
+                        Previous Page
+                    </a>
+                {% endif%}
+                {% for page_number in page_obj.adjusted_elided_pages %}
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        {{page_number}}
+                    {% else %}
+                        <a
+                            href="{% url 'admin-user-list' %}?page={{ page_number }}"
+                            class="{% if page_number == page_obj.number %}current{% endif %}"
+                        >
+                            {{ page_number }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="{% url 'admin-user-list' %}?page={{ page_obj.next_page_number }}">
+                        Next Page
+                    </a>
+                {% endif%}
+            {% else %}
+
+                No Users
+
+            {% endif %}
+        </div>
+        <div class="col-md-2">
+            <form method="GET" class="d-flex">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Filter</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="blocked">Blocked</label>
+                          </div>
+                          <select name="blocked" id="blocked">
+                            <option value="">--</option>
+                            <option value="True">Blocked</option>
+                            <option value="False">Unblocked</option>
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="staff">Staff</label>
+                          </div>
+                          <select name="staff" id="staff">
+                            <option value="">--</option>
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="user_type">User Type</label>
+                          </div>
+                          <select name="user_type" id="user_type">
+                            <option value="">--</option>
+                                {% for user_type in user_types %}
+                                    <option value="{{ user_type.name }}">{{ user_type.name }}</option>
+                                {% endfor %}
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="premium_user">Premium User</label>
+                          </div>
+                          <select name="premium_user" id="premium_user">
+                            <option value="">--</option>
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <div>
+                              <label for="active">Active</label>
+                          </div>
+                          <select name="active" id="active">
+                            <option value="">--</option>
+                            <option value="True">Yes</option>
+                            <option value="False">No</option>
+                          </select>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                          <button class="btn btn-outline-success" type="submit">Filter</button>
+                      </td>
+                    </tr>
+
+                  </tbody>
+                </table>
+
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}{% endblock %}

@@ -5,12 +5,15 @@ from django.conf.urls.static import static
 from news_blog import views as news_blog_views
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('custom-admin/', include('custom_admin.urls')),
+    path('admin/', admin.site.urls, name='django-admin'),
+    path('scrap/', news_blog_views.RunScrapper.as_view(), name='run-scraper'),
+    path('cadmin/', include('custom_admin.urls')),
     path('user/', include('users.urls')),
-    path('scrap/', news_blog_views.run_scraper, name='run_scraper'),
     path('', include('news_blog.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 
 

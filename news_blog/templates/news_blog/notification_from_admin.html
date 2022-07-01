@@ -38,7 +38,7 @@
         $('.mark-read').click(function () {
             let id = this.id;
             $.ajax({
-                url: "{% url 'admin_notification_seen' %}?pk="+id,
+                url: "{% url 'admin-notification-seen' %}?pk="+id,
                 success: function(result){
                     location.reload();
                 }

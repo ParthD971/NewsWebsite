@@ -16,6 +16,7 @@ from .constants import user_login_success, WRONG_CREDENTIALS, INVALID_INFORMATIO
     EMAIL_CONFIRMATION, INVALID_VERIFICATION_LINK, PASSWORD_RESET_INSTRUCTION
 from django.views.generic.edit import UpdateView
 from news_blog.models import Post
+from django.http import HttpResponseRedirect
 
 
 class LoginView(View):
@@ -88,9 +89,10 @@ class RegisterView(View):
         )
 
 
-def logout_request(request):
-    logout(request)
-    return redirect('home')
+class LogoutView(View):
+    def get(self, request):
+        logout(request)
+        return HttpResponseRedirect('home')
 
 
 class ActivateEmail(View):

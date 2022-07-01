@@ -1,0 +1,64 @@
+{% extends "custom_admin/admin_main_page.html" %}
+
+{% block css %}{% endblock %}
+
+{% block body %}
+<div class="container my-3">
+    <div class="row">
+    {% if notifications %}
+        <div class="col">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th scope="col">Receiver</th>
+                    <th scope="col">Message</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Seen</th>
+                </tr>
+              </thead>
+                <tbody>
+                    {% for notification in notifications %}
+                        <tr>
+                            <td>{{ notification.receiver.first_name }}</td>
+                            <td>{{ notification.message }}</td>
+                            <td>{{ notification.time }}</td>
+                            <td>{{ notification.seen }}</td>
+                          </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+
+            {% if page_obj.has_previous %}
+                <a href="{% url 'admin-notification-list' %}?page={{ page_obj.previous_page_number }}">
+                    Previous Page
+                </a>
+            {% endif%}
+            {% for page_number in page_obj.adjusted_elided_pages %}
+                {% if page_number == page_obj.paginator.ELLIPSIS %}
+                    {{page_number}}
+                {% else %}
+                    <a
+                        href="{% url 'admin-notification-list' %}?page={{ page_number }}"
+                        class="{% if page_number == page_obj.number %}current{% endif %}"
+                    >
+                        {{ page_number }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="{% url 'admin-notification-list' %}?page={{ page_obj.next_page_number }}">
+                    Next Page
+                </a>
+            {% endif%}
+        </div>
+    </div>
+    {% else %}
+
+        No notifications
+
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}{% endblock %}

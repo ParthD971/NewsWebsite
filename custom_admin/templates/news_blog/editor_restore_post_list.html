@@ -1,4 +1,4 @@
-{% extends "custom_admin/manager_home_page.html" %}
+{% extends "custom_admin/editor_main_page.html" %}
 
 {% block css %}{% endblock %}
 
@@ -22,14 +22,14 @@
                     {% for item in deleted_items %}
                         <li>
                             {{ item.post }} | {{ item.deleted_by.first_name }} | {{ item.recycle_created_on }}
-                            <a href="{% url 'manager-restore-post' pk=item.id %}">
+                            <a href="{% url 'editor-restore-post-confirm' pk=item.id %}">
                                 Restore
                             </a>
                         </li>
                     {% endfor %}
                 </ul>
                 {% if page_obj.has_previous %}
-                    <a href="{% url 'manager-restore-post-list' %}?page={{ page_obj.previous_page_number }}">
+                    <a href="{% url 'editor-restore-post-list' %}?page={{ page_obj.previous_page_number }}">
                         Previous Page
                     </a>
                 {% endif%}
@@ -38,7 +38,7 @@
                         {{page_number}}
                     {% else %}
                         <a
-                            href="{% url 'manager-restore-post-list' %}?page={{ page_number }}"
+                            href="{% url 'editor-restore-post-list' %}?page={{ page_number }}"
                             class="{% if page_number == page_obj.number %}current{% endif %}"
                         >
                             {{ page_number }}
@@ -46,7 +46,7 @@
                     {% endif %}
                 {% endfor %}
                 {% if page_obj.has_next %}
-                    <a href="{% url 'manager-restore-post-list' %}?page={{ page_obj.next_page_number }}">
+                    <a href="{% url 'editor-restore-post-list' %}?page={{ page_obj.next_page_number }}">
                         Next Page
                     </a>
                 {% endif%}
