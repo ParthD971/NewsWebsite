@@ -10,7 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import dj_database_url
-import django_heroku
+import django_on_heroku
 from pathlib import Path
 import os
 from django.contrib.messages import constants as messages
@@ -184,7 +184,7 @@ MAX_PROFILE_PICTURE_WIDTH = 500
 MAX_PROFILE_PICTURE_DIMENSIONS = (500, 500)
 
 # HEROKU CONFIGURATIONS
-django_heroku.settings(locals())
+django_on_heroku.settings(locals())
 
 
 # AWS CONFIGURATIONS
