@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from .models import (
     Post,
     ApplicationNotification,
@@ -9,7 +10,7 @@ from .models import (
     Categorie,
 )
 from custom_admin.models import AdminNotification
-from django.views.generic import ListView, DetailView, View
+from django.views.generic import ListView, DetailView, View, RedirectView, TemplateView
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
 from .forms import ManagerApplicationForm, EditorApplicationForm, PremiumApplicationForm
@@ -18,12 +19,17 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import redirect, render
-from users.models import CustomUser as User
+from users.models import CustomUser as User, StripeCustomer
 import os
-from django.http import JsonResponse, HttpResponseNotFound
+from django.http import JsonResponse, HttpResponseNotFound, HttpResponse
 from datetime import datetime
-from .permissions import GroupRequiredMixin
+from .permissions import GroupRequiredMixin, CheckPremiumUserMixin
 from news_blog.helpers import get_paginated_context, is_mark_seen_success
+from django.conf import settings
+import stripe
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+
 
 
 class HomeView(ListView):
@@ -286,22 +292,191 @@ class AddViewsView(View):
         return JsonResponse({'msg': 'views added'})
 
 
-class PremiumApplyView(SuccessMessageMixin, FormView):
+class PremiumApplyView(GroupRequiredMixin, CheckPremiumUserMixin, TemplateView):
     template_name = 'news_blog/premium_user_application.html'
-    form_class = PremiumApplicationForm
-    success_url = reverse_lazy('home')
     group_required = [u'consumer']
 
-    def get_form_kwargs(self):
-        kwargs = super(PremiumApplyView, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
 
-    def form_valid(self, form):
-        user = self.request.user
+class StripeConfig(GroupRequiredMixin, View):
+    group_required = [u'consumer']
+
+    @method_decorator(csrf_exempt)
+    def get(self, request):
+        stripe_config_ = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
+        return JsonResponse(stripe_config_, safe=False)
+
+
+# @csrf_exempt
+# def stripe_config(request):
+#     if request.method == 'GET':
+#         stripe_config_ = {'publicKey': settings.STRIPE_PUBLISHABLE_KEY}
+#         return JsonResponse(stripe_config_, safe=False)
+
+
+class CreateCheckoutSession(GroupRequiredMixin, View):
+    group_required = [u'consumer']
+
+    @method_decorator(csrf_exempt)
+    def get(self, request):
+        domain_url = request.build_absolute_uri(reverse_lazy('home'))
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            checkout_session = stripe.checkout.Session.create(
+                client_reference_id=request.user.id if request.user.is_authenticated else None,
+                success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+                cancel_url=domain_url + 'cancel/',
+                payment_method_types=['card'],
+                mode='subscription',
+                line_items=[
+                    {
+                        'price': settings.STRIPE_PRICE_ID,
+                        'quantity': 1,
+                    }
+                ]
+            )
+            return JsonResponse({'sessionId': checkout_session['id']})
+        except Exception as e:
+            return JsonResponse({'error': str(e)})
+
+
+# @csrf_exempt
+# def create_checkout_session(request):
+#     if request.method == 'GET':
+#         domain_url = request.build_absolute_uri(reverse_lazy('home'))
+#         stripe.api_key = settings.STRIPE_SECRET_KEY
+#         try:
+#             checkout_session = stripe.checkout.Session.create(
+#                 client_reference_id=request.user.id if request.user.is_authenticated else None,
+#                 success_url=domain_url + 'success?session_id={CHECKOUT_SESSION_ID}',
+#                 cancel_url=domain_url + 'cancel/',
+#                 payment_method_types=['card'],
+#                 mode='subscription',
+#                 line_items=[
+#                     {
+#                         'price': settings.STRIPE_PRICE_ID,
+#                         'quantity': 1,
+#                     }
+#                 ]
+#             )
+#             return JsonResponse({'sessionId': checkout_session['id']})
+#         except Exception as e:
+#             return JsonResponse({'error': str(e)})
+
+
+
+
+
+class StripeWebhook(GroupRequiredMixin, View):
+
+    @method_decorator(csrf_exempt)
+    def get(self, request):
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        endpoint_secret = settings.STRIPE_ENDPOINT_SECRET
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        event = None
+
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        except ValueError as e:
+            # Invalid payload
+            return HttpResponse(status=400)
+        except stripe.error.SignatureVerificationError as e:
+            # Invalid signature
+            return HttpResponse(status=400)
+
+        # Handle the checkout.session.completed event
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+
+            # Fetch all the required data from session
+            client_reference_id = session.get('client_reference_id')
+            stripe_customer_id = session.get('customer')
+            stripe_subscription_id = session.get('subscription')
+
+            # Get the user and create a new StripeCustomer
+            user = User.objects.get(id=client_reference_id)
+            StripeCustomer.objects.create(
+                user=user,
+                stripeCustomerId=stripe_customer_id,
+                stripeSubscriptionId=stripe_subscription_id,
+            )
+            print(user.username + ' just subscribed.')
+
+        return HttpResponse(status=200)
+
+# @csrf_exempt
+# def stripe_webhook(request):
+#     stripe.api_key = settings.STRIPE_SECRET_KEY
+#     endpoint_secret = settings.STRIPE_ENDPOINT_SECRET
+#     payload = request.body
+#     sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+#     event = None
+#
+#     try:
+#         event = stripe.Webhook.construct_event(
+#             payload, sig_header, endpoint_secret
+#         )
+#     except ValueError as e:
+#         # Invalid payload
+#         return HttpResponse(status=400)
+#     except stripe.error.SignatureVerificationError as e:
+#         # Invalid signature
+#         return HttpResponse(status=400)
+#
+#     # Handle the checkout.session.completed event
+#     if event['type'] == 'checkout.session.completed':
+#         session = event['data']['object']
+#
+#         # Fetch all the required data from session
+#         client_reference_id = session.get('client_reference_id')
+#         stripe_customer_id = session.get('customer')
+#         stripe_subscription_id = session.get('subscription')
+#
+#         # Get the user and create a new StripeCustomer
+#         user = User.objects.get(id=client_reference_id)
+#         StripeCustomer.objects.create(
+#             user=user,
+#             stripeCustomerId=stripe_customer_id,
+#             stripeSubscriptionId=stripe_subscription_id,
+#         )
+#         print(user.username + ' just subscribed.')
+#
+#     return HttpResponse(status=200)
+
+class SuccessPaymentView(GroupRequiredMixin, View):
+    group_required = [u'consumer']
+
+    def get(self, request):
+        messages.success(request, 'Payment successful and you are now premium user!!!!')
+        user = request.user
         user.is_premium_user = True
         user.save()
-        return super().form_valid(form)
+        return redirect('home')
+
+# @login_required
+# def success(request):
+#     messages.success(request, 'Payment successful and you are now premium user!!!!')
+#     user = request.user
+#     user.is_premium_user = True
+#     user.save()
+#     return redirect('home')
+
+
+
+class FailedPaymentView(GroupRequiredMixin, View):
+    group_required = [u'consumer']
+
+    def get(self, request):
+        messages.error(request, 'Payment Failed!')
+        return redirect('home')
+
+# @login_required
+# def cancel(request):
+#     messages.success(request, 'Payment Failed')
+#     return redirect('home')
 
 
 class NotificationFromAdminView(GroupRequiredMixin, View):

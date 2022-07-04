@@ -7,14 +7,21 @@
 {% block body %}
     {% load crispy_forms_tags %}
     <div class="container my-3">
-        <form method = "POST">
-            {% csrf_token %}
-            <h5>Apply for premium user</h5>
-            {{ form|crispy }}
-            <input type = "submit" value = "Apply">
-        </form>
+        <h5>Are you sure, you want to subscribe?</h5>
+        <p>Benefits of subscription/premium membership:</p>
+        <ul>
+            <li>You can read all Premium new without any delay.</li>
+            <li>No need to remember monthly pays, we will auto-deduct.</li>
+        </ul>
+        <p class="text-muted">Take all premium member benefits as soon as possible by subscribing. so what's awaiting you, Subscribe already!!</p>
+        <button class="btn btn-danger" id="submitBtn">Subscribe</button>
     </div>
 
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block js %}
+    <script src="https://js.stripe.com/v3/"></script>
+    {% load static %}
+    <script src="{% static 'news_blog/premium.js' %}"></script>
+
+{% endblock %}

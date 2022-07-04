@@ -14,6 +14,11 @@ urlpatterns = [
     path('application-for-premium-user/', views.PremiumApplyView.as_view(), name='apply-for-premium-user'),
     path('notification-from-admin/', views.NotificationFromAdminView.as_view(), name='notification-from-admin'),
     path('notification-from-admin-seen/', views.NotificationFromAdminSeenView.as_view(), name='admin-notification-seen'),
+    path('config/', views.StripeConfig.as_view(), name='stripe-config'),
+    path('create-checkout-session/', views.CreateCheckoutSession.as_view(), name='create-checkout-session'),
+    path('success/', views.SuccessPaymentView.as_view(), name='success'),
+    path('cancel/', views.FailedPaymentView.as_view(), name='cancel'),
+    path('webhook/', views.StripeWebhook.as_view(), name='webhook'),
 ]
 
 

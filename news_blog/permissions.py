@@ -18,3 +18,12 @@ class GroupRequiredMixin(object):
             if len(set(user_groups).intersection(self.group_required)) <= 0:
                 raise PermissionDenied
         return super(GroupRequiredMixin, self).dispatch(request, *args, **kwargs)
+
+
+class CheckPremiumUserMixin(object):
+    required = None
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_premium_user:
+            raise PermissionDenied
+        return super(CheckPremiumUserMixin, self).dispatch(request, *args, **kwargs)

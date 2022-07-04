@@ -36,3 +36,12 @@ class CustomUser(AbstractUser):
         if grp:
             group_name = grp.name
         return group_name + ' | ' + self.first_name
+
+
+class StripeCustomer(models.Model):
+    user = models.OneToOneField(to=CustomUser, on_delete=models.CASCADE)
+    stripeCustomerId = models.CharField(max_length=255)
+    stripeSubscriptionId = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.user.first_name

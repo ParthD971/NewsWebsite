@@ -36,7 +36,7 @@ class Post(models.Model):
     created_on = models.DateField(default=timezone.now)
     views = models.IntegerField(default=0, blank=False, null=False)
     status = models.ForeignKey(PostStatus, on_delete=models.CASCADE, null=False)
-    category = models.ManyToManyField(Categorie, through='PCMiddle', null=True)
+    category = models.ManyToManyField(Categorie, through='PCMiddle')
     image = models.ImageField(upload_to=POST_IMAGE_UPLOAD_TO, default=DEFAULT_IMAGE_PATH)
     # Type : SCRAPED or MANUAL
     post_type = models.CharField(max_length=20, choices=POST_TYPE_CHOICES, default=POST_TYPE_CHOICES[1][0])

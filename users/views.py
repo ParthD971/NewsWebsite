@@ -92,7 +92,7 @@ class RegisterView(View):
 class LogoutView(View):
     def get(self, request):
         logout(request)
-        return HttpResponseRedirect('home')
+        return redirect('home')
 
 
 class ActivateEmail(View):
