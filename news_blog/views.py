@@ -362,6 +362,8 @@ class StripeWebhook(View):
 
             # Get the user and create a new StripeCustomer
             user = User.objects.get(id=client_reference_id)
+            user.is_premium_user = True
+            user.save()
             StripeCustomer.objects.create(
                 user=user,
                 stripeCustomerId=stripe_customer_id,
@@ -377,9 +379,6 @@ class SuccessPaymentView(GroupRequiredMixin, View):
 
     def get(self, request):
         messages.success(request, 'Payment successful and you are now premium user!!!!')
-        user = request.user
-        user.is_premium_user = True
-        user.save()
         return redirect('home')
 
 
