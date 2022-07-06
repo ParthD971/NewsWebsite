@@ -2,7 +2,7 @@ from django.test import TestCase
 from users.models import CustomUser as User
 
 
-class UsersManagersTests(TestCase):
+class TestUsersManagers(TestCase):
     def test_create_user(self):
         user = User.objects.create_user(email='normal@user.com', password='foo')
         self.assertEqual(user.email, 'normal@user.com')

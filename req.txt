@@ -16,3 +16,4 @@ django-storages
 Twisted
 stripe==3.5.0
 uvicorn
+pytest-django
