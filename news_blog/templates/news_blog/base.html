@@ -35,7 +35,7 @@
             </li>
 
 {#          {% if user.user_type.name == 'editor' or user.user_type.name == 'manager' %}#}
-          {% if admin_notification %}
+          {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'notification-from-admin' %}">Notification from Admin</a>
             </li>
@@ -96,7 +96,7 @@
                                   <li><a class="dropdown-item" aria-current="page" href="{% url 'apply-for-editor' %}">Apply for Editor</a></li>
                               {% endif %}
 
-                              {% if not user.is_premium_user %}
+                              {% if user.user_type.name == 'consumer' and not user.is_premium_user %}
                                   <li><a class="dropdown-item" aria-current="page" href="{% url 'apply-for-premium-user' %}">Apply for Premium User</a></li>
                               {% endif %}
 

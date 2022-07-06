@@ -27,7 +27,7 @@
                     </span>
 
                     <div>
-                        {% if user.is_authenticated %}
+                        {% if user.is_authenticated and user.user_type == 'consumer' %}
                             {% if following %}
                                 <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}">Unfollow</a>
                             {% else %}

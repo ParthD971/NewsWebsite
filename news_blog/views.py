@@ -85,7 +85,6 @@ class HomeView(ListView):
         context['trending_posts'] = Post.objects.filter(status__name='active').order_by('-views')[:3]
         context['categories'] = Categorie.objects.all()
         context['authors'] = Post.objects.order_by('author_display_name').values('author_display_name').distinct()
-        context['admin_notification'] = True
         return context
 
 
@@ -106,7 +105,9 @@ class PostDetailView(DetailView):
             return HttpResponseNotFound('Page Not Active')
 
         if self.object.premium:
-            if not (request.user.is_authenticated and request.user.is_premium_user):
+            if not request.user.is_authenticated:
+                return redirect('login')
+            if request.user.user_type.name == 'consumer' and not request.user.is_premium_user:
                 return redirect('apply-for-premium-user')
 
         return self.render_to_response(context)
@@ -421,3 +422,4 @@ class RunScrapper(GroupRequiredMixin, View):
     def get(self, request):
         os.system('python manage.py crawl "sports"')
         return JsonResponse({'msg': 'Done'})
+

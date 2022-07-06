@@ -21,10 +21,10 @@ class NewsSpider(scrapy.Spider):
             item['date'] = news.css('.date::text').get()
             item['href'] = news.css('.title a::attr(href)').get()
             print('\n\n\n ')
-            print((datetime.now() - timedelta(hours=34)).strftime('%B %d'))
+            print((datetime.now()).strftime('%B %-d'), item['date'].split(',')[0].strip())
             print('\n\n\n ')
-            if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %d') \
-                    and item['date'].split(',')[0].strip() != (datetime.now() - timedelta(hours=34)).strftime('%B %d'):
+            if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %-d') \
+                    and item['date'].split(',')[0].strip() != (datetime.now() - timedelta(hours=34)).strftime('%B %-d'):
             # if item['date'].split(',')[0].strip() != datetime.now().strftime('%B %d'):
                 today_news_end = True
                 break

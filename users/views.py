@@ -16,7 +16,7 @@ from .constants import user_login_success, WRONG_CREDENTIALS, INVALID_INFORMATIO
     EMAIL_CONFIRMATION, INVALID_VERIFICATION_LINK, PASSWORD_RESET_INSTRUCTION
 from django.views.generic.edit import UpdateView
 from news_blog.models import Post
-from django.http import HttpResponseRedirect
+from news_blog.permissions import GroupRequiredMixin
 
 
 class LoginView(View):
@@ -89,7 +89,9 @@ class RegisterView(View):
         )
 
 
-class LogoutView(View):
+class LogoutView(GroupRequiredMixin, View):
+    group_required = [u'manager', u'consumer', u'editor', u'admin']
+
     def get(self, request):
         logout(request)
         return redirect('home')
@@ -122,11 +124,12 @@ class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
     success_url = reverse_lazy('home')
 
 
-class ProfileView(UpdateView):
+class ProfileView(GroupRequiredMixin, UpdateView):
     model = User
     form_class = ProfileForm
     success_url = reverse_lazy('home')
     template_name = 'users/profile.html'
+    group_required = [u'manager', u'consumer', u'editor', u'admin']
 
     def form_valid(self, form):
         # save this name to author_display_name if user is editor
