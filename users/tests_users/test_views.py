@@ -23,7 +23,7 @@ class TestUsersViews(TestCase):
         self.client = Client()
 
         self.register_url = reverse('register')
-        self.profile_url = reverse('profile', args=[self.user.id])
+        self.profile_url = reverse('profile', kwargs={'pk':self.user.id})
         self.login_url = reverse('login')
         self.logout_url = reverse('logout')
         self.home_url = reverse('home')

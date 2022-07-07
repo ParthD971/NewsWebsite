@@ -98,6 +98,27 @@ class LoginForm(forms.Form):
         ]
 
 
+class ProfileForm(forms.ModelForm):
+    first_name = forms.CharField(required=True)
+    age = forms.IntegerField(required=False)
+
+    def clean_age(self):
+        cleaned_data = self.clean()
+        age = cleaned_data.get('age')
+
+        if age is None:
+            return age
+
+        if age < 1 or age > 100:
+            raise ValidationError("Age not valid.")
+
+        return age
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'age']
+
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User
@@ -108,23 +129,3 @@ class CustomUserChangeForm(UserChangeForm):
     class Meta:
         model = User
         fields = ('email',)
-
-
-class ProfileForm(forms.ModelForm):
-    first_name = forms.CharField(required=True)
-    def clean_age(self):
-        cleaned_data = self.clean()
-        age = cleaned_data.get('age')
-
-        if age < 1 or age > 100:
-            raise ValidationError("Age not valid")
-
-        return age
-
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'age']
-
-
-
-        

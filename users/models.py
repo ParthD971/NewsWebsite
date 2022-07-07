@@ -35,7 +35,7 @@ class CustomUser(AbstractUser):
         grp = self.groups.first()
         if grp:
             group_name = grp.name
-        return group_name + ' | ' + self.first_name
+            return group_name + ' | ' + self.first_name
 
 
 class StripeCustomer(models.Model):
