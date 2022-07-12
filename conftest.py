@@ -2,9 +2,8 @@ import pytest
 from django.contrib.auth.models import Group
 from users.models import UserType
 import uuid
-from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus
-from news_blog.constants import NOTIFICATION_TYPE_MANAGER_REQUEST, NOTIFICATION_STATUS_PENDING, \
-    NOTIFICATION_TYPE_EDITOR_REQUEST
+from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus, Post, PostStatus
+from news_blog.constants import NOTIFICATION_STATUS_PENDING, NOTIFICATION_TYPE_EDITOR_REQUEST
 
 
 @pytest.fixture
@@ -140,3 +139,61 @@ def create_application_notification_obj(db, create_role_based_user, create_notif
         )[0]
 
     return make_obj
+
+
+@pytest.fixture
+def test_content():
+    return 'Content'
+
+
+@pytest.fixture
+def create_post_status_obj(db):
+    def make_obj(name=None):
+        if name is None:
+            name = 'pending'
+        return PostStatus.objects.get_or_create(name=name)[0]
+    return make_obj
+
+
+@pytest.fixture
+def create_post_obj(db, create_role_based_user, test_content, create_post_status_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('title', None) is None:
+            kwargs['title'] = 'Title: ' + str(uuid.uuid4())
+
+        if kwargs.get('author', None) is None:
+            kwargs['author'] = create_role_based_user(name='editor')
+
+        if kwargs.get('content', None) is None:
+            kwargs['content'] = test_content
+
+        if kwargs.get('status', None) is None:
+            kwargs['status'] = create_post_status_obj(name='pending')
+
+        if kwargs.get('author_display_name', None) is None:
+            kwargs['author_display_name'] = kwargs['author'].first_name
+
+        if kwargs.get('premium', None) is None:
+            kwargs['premium'] = False
+
+        return Post.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
+
+
+@pytest.fixture(scope='module')
+def get_data(request):
+    return {
+        'home': 'news_blog/home.html',
+        'post-detail': 'news_blog/news_detail.html',
+        # 'follow': 'news_blog/home.html',
+        # 'notification-seen': 'news_blog/home.html',
+        'notification-list': 'news_blog/post_notification_list.html',
+        # 'add-views': 'news_blog/home.html',
+        'apply-for-manager': 'news_blog/manager_application.html',
+        'apply-for-editor': 'news_blog/editor_application.html',
+        'apply-for-premium-user': 'news_blog/premium_user_application.html',
+        'notification-from-admin': 'news_blog/notification_from_admin.html',
+        # 'admin-notification-seen': 'news_blog/home.html',
+    }
+
