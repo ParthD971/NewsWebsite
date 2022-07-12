@@ -10,10 +10,10 @@ from .models import (
     Categorie,
 )
 from custom_admin.models import AdminNotification
-from django.views.generic import ListView, DetailView, View, RedirectView, TemplateView
+from django.views.generic import ListView, DetailView, View, TemplateView
 from .paginators import CustomPaginator
 from django.views.generic.edit import FormView
-from .forms import ManagerApplicationForm, EditorApplicationForm, PremiumApplicationForm
+from .forms import ManagerApplicationForm, EditorApplicationForm
 from django.urls import reverse_lazy
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
@@ -27,9 +27,7 @@ from .permissions import GroupRequiredMixin, CheckPremiumUserMixin
 from news_blog.helpers import get_paginated_context, is_mark_seen_success
 from django.conf import settings
 import stripe
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-
 
 
 class HomeView(ListView):
@@ -422,4 +420,3 @@ class RunScrapper(GroupRequiredMixin, View):
     def get(self, request):
         os.system('python manage.py crawl "sports"')
         return JsonResponse({'msg': 'Done'})
-

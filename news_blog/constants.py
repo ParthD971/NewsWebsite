@@ -31,7 +31,7 @@ DEFAULT_IMAGE_PATH = DEFAULT_IMAGE_NAME + POST_IMAGE_UPLOAD_TO
 CHECK_BOX_LABEL = 'I have read and agree the terms and conditions.'
 ALREADY_ONE_ROLE_EXISTS = u"You cannot apply because you already have one role as %s."
 ALREADY_APPLIED_FOR__ROLE = f"You have already applied for %s. Current status: %s."
-
+ALREADY_PREMIUM_USER = 'You cannot apply because you already are premium user.'
 
 
 

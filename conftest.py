@@ -3,7 +3,8 @@ from django.contrib.auth.models import Group
 from users.models import UserType
 import uuid
 from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus
-from news_blog.constants import NOTIFICATION_TYPE_MANAGER_REQUEST, NOTIFICATION_STATUS_PENDING
+from news_blog.constants import NOTIFICATION_TYPE_MANAGER_REQUEST, NOTIFICATION_STATUS_PENDING, \
+    NOTIFICATION_TYPE_EDITOR_REQUEST
 
 
 @pytest.fixture
@@ -121,18 +122,21 @@ def create_notification_status_obj(db):
 
 
 @pytest.fixture
-def create_manager_application_obj(db, create_role_based_user, create_notification_type_obj, create_notification_status_obj):
-    def make_obj(user=None, status=None):
+def create_application_notification_obj(db, create_role_based_user, create_notification_type_obj, create_notification_status_obj):
+    def make_obj(user=None, status=None, notification_type=None):
         if user is None:
             user = create_role_based_user(name='consumer')
 
         if status is None:
             status = NOTIFICATION_STATUS_PENDING
 
+        if notification_type is None:
+            notification_type = NOTIFICATION_TYPE_EDITOR_REQUEST
+
         return ApplicationNotification.objects.get_or_create(
             user=user,
-            notification_type=create_notification_type_obj(name=NOTIFICATION_TYPE_MANAGER_REQUEST),
+            notification_type=create_notification_type_obj(name=notification_type),
             status=create_notification_status_obj(name=status)
-        )
+        )[0]
 
     return make_obj
