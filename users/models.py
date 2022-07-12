@@ -31,11 +31,8 @@ class CustomUser(AbstractUser):
     objects = CustomUserManager()
 
     def __str__(self):
-        group_name = "SuperUser"
-        grp = self.groups.first()
-        if grp:
-            group_name = grp.name
-            return group_name + ' | ' + self.first_name
+        group = self.groups.first()
+        return group.name + ' | ' + self.first_name
 
 
 class StripeCustomer(models.Model):

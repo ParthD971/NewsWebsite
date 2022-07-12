@@ -1,6 +1,6 @@
 from django.contrib.admin import SimpleListFilter
 from django.utils.translation import gettext_lazy as _
-from .constants import GROUP_EDITOR_NAME
+from users.constants import GROUP_EDITOR_NAME
 from .models import PostStatus
 from django.contrib.auth.models import Group
 

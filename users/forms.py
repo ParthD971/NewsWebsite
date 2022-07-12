@@ -1,8 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from .models import CustomUser as User
+from .models import CustomUser as User, UserType
 from validate_email_address import validate_email
 from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Group
 
 
 class RegisterForm(UserCreationForm):
@@ -26,10 +27,13 @@ class RegisterForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.is_active = False
+        user.user_type = UserType.objects.get(name='consumer')
         user.set_password(self.cleaned_data["password1"])
+        user.save()
 
-        if commit:
-            user.save()
+        my_group = Group.objects.get(name='consumer')
+        my_group.user_set.add(user)
+
         return user
 
     def clean_password2(self):

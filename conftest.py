@@ -2,6 +2,8 @@ import pytest
 from django.contrib.auth.models import Group
 from users.models import UserType
 import uuid
+from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus
+from news_blog.constants import NOTIFICATION_TYPE_MANAGER_REQUEST, NOTIFICATION_STATUS_PENDING
 
 
 @pytest.fixture
@@ -96,3 +98,41 @@ def auto_login_consumer_user(db, client, create_role_based_user, test_password):
         return client, user
 
     return make_auto_login
+
+
+@pytest.fixture
+def create_notification_type_obj(db):
+    def make_obj(name=None):
+        if name is None:
+            name = str(uuid.uuid4())
+        return NotificationType.objects.get_or_create(name=name)[0]
+
+    return make_obj
+
+
+@pytest.fixture
+def create_notification_status_obj(db):
+    def make_obj(name=None):
+        if name is None:
+            name = str(uuid.uuid4())
+        notification_type = NotificationStatus.objects.get_or_create(name=name)[0]
+        return notification_type
+    return make_obj
+
+
+@pytest.fixture
+def create_manager_application_obj(db, create_role_based_user, create_notification_type_obj, create_notification_status_obj):
+    def make_obj(user=None, status=None):
+        if user is None:
+            user = create_role_based_user(name='consumer')
+
+        if status is None:
+            status = NOTIFICATION_STATUS_PENDING
+
+        return ApplicationNotification.objects.get_or_create(
+            user=user,
+            notification_type=create_notification_type_obj(name=NOTIFICATION_TYPE_MANAGER_REQUEST),
+            status=create_notification_status_obj(name=status)
+        )
+
+    return make_obj

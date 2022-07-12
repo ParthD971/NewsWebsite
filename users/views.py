@@ -64,9 +64,10 @@ class RegisterView(View):
         form = RegisterForm(request.POST)
         if form.is_valid():
             try:
-                user = form.save(commit=False)
-                user.user_type = UserType.objects.get(name='consumer')
-                user.save()
+                user = form.save()
+                # user = form.save(commit=False)
+                # user.user_type = UserType.objects.get(name='consumer')
+                # user.save()
 
                 to_email = user.email
                 send_email(request, user, to_email)
@@ -110,8 +111,6 @@ class ActivateEmail(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            my_group = Group.objects.get(name='consumer')
-            my_group.user_set.add(user)
             user.save()
             messages.success(request, EMAIL_CONFIRMATION)
             return redirect("home")

@@ -3,6 +3,8 @@ import pytest
 
 
 class TestLoginForm(object):
+    """Test Class for LoginForm in users/forms.py"""
+
     @pytest.mark.django_db
     @pytest.mark.parametrize(
         ('invalid_data', 'error'),
@@ -46,6 +48,8 @@ class TestLoginForm(object):
 
 
 class TestRegisterForm(object):
+    """Test Class for RegisterForm in users/forms.py"""
+
     @pytest.mark.django_db
     @pytest.mark.parametrize(
         ('invalid_data', 'error'),
@@ -85,15 +89,36 @@ class TestRegisterForm(object):
         assert form.errors[error[0]] == error[1]
 
     @pytest.mark.django_db
-    def test_register_form(self, create_role_based_user, test_password):
+    def test_register_form(self, test_password):
         """Test Case: Registration Form for valid form-data."""
 
-        user = create_role_based_user(name='consumer', email='parth@gmail.com')
-        form = forms.LoginForm(data={'email': user.email, 'password': test_password})
+        form = forms.RegisterForm(data={
+            'email': 'desaiparth971@gmail.com',
+            'password1': test_password,
+            'password2': test_password
+        })
         assert form.is_valid()
+
+    @pytest.mark.django_db
+    def test_register_form_save(self, test_password, create_user_type_obj, create_group_obj):
+        consumer_user_type = create_user_type_obj(name='consumer')
+        consumer_group = create_group_obj(name='consumer')
+
+        form = forms.RegisterForm(data={
+            'email': 'desaiparth971@gmail.com',
+            'password1': test_password,
+            'password2': test_password
+        })
+        assert form.is_valid()
+        user = form.save()
+        assert not user.is_active
+        assert user.user_type == consumer_user_type
+        assert user.groups.first() == consumer_group
 
 
 class TestProfileForm(object):
+    """Test Class for ProfileForm in users/forms.py"""
+
     @pytest.mark.django_db
     @pytest.mark.parametrize(
         ('invalid_data', 'error'),

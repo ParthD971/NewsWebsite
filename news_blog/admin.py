@@ -13,7 +13,7 @@ from .models import (
     PCMiddle,
     PostStatusRecord
 )
-from .constants import GROUP_EDITOR_NAME
+from users.constants import GROUP_EDITOR_NAME
 from .filters import PostStatusFilter, FollowFilter, PostEditorFilter
 
 

@@ -1,11 +1,10 @@
 from django.test import TestCase, Client
-from django.urls import reverse, resolve
-from users.models import CustomUser as User
+from django.urls import reverse
+from users.models import CustomUser as User, UserType
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from users.token import account_activation_token
 from django.contrib.auth.models import Group
-from users.models import UserType
 from django.core import mail
 
 
@@ -23,7 +22,7 @@ class TestUsersViews(TestCase):
         self.client = Client()
 
         self.register_url = reverse('register')
-        self.profile_url = reverse('profile', kwargs={'pk':self.user.id})
+        self.profile_url = reverse('profile', kwargs={'pk': self.user.id})
         self.login_url = reverse('login')
         self.logout_url = reverse('logout')
         self.home_url = reverse('home')
@@ -131,7 +130,7 @@ class TestUsersViews(TestCase):
         self.assertEqual(1, len(mail.outbox))
         #
         self.assertEqual(response.status_code, 302)
-        # At this point the system will "send" us an email. We can "check" it thusly:
+        # At this point the system will "send" us an email. We can "check" it.:
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].subject, 'News Website Password Reset')
 
