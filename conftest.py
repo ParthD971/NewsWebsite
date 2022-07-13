@@ -1,9 +1,22 @@
 import pytest
 from django.contrib.auth.models import Group
+
+from custom_admin.models import ManagerComment, AdminNotification
 from users.models import UserType
 import uuid
-from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus, Post, PostStatus, Categorie, \
-    PostRecycle, PostNotification, PostView, PostStatusRecord
+from news_blog.models import (
+    ApplicationNotification,
+    NotificationType,
+    NotificationStatus,
+    Post,
+    PostStatus,
+    Categorie,
+    PostRecycle,
+    PostNotification,
+    PostView,
+    PostStatusRecord
+)
+
 from news_blog.constants import NOTIFICATION_STATUS_PENDING, NOTIFICATION_TYPE_EDITOR_REQUEST
 
 
@@ -15,6 +28,7 @@ def create_user_type_obj(db, django_user_model):
         if 'name' not in kwargs:
             kwargs['name'] = str(uuid.uuid4())
         return UserType.objects.get_or_create(name=kwargs['name'])[0]
+
     return make_user_type
 
 
@@ -26,6 +40,7 @@ def create_group_obj(db, django_user_model):
         if 'name' not in kwargs:
             kwargs['name'] = str(uuid.uuid4())
         return Group.objects.get_or_create(name=kwargs['name'])[0]
+
     return make_group
 
 
@@ -118,11 +133,16 @@ def create_notification_status_obj(db):
             name = str(uuid.uuid4())
         notification_type = NotificationStatus.objects.get_or_create(name=name)[0]
         return notification_type
+
     return make_obj
 
 
 @pytest.fixture
-def create_application_notification_obj(db, create_role_based_user, create_notification_type_obj, create_notification_status_obj):
+def create_application_notification_obj(
+        db, create_role_based_user,
+        create_notification_type_obj,
+        create_notification_status_obj
+):
     def make_obj(user=None, status=None, notification_type=None):
         if user is None:
             user = create_role_based_user(name='consumer')
@@ -153,6 +173,7 @@ def create_post_status_obj(db):
         if name is None:
             name = 'pending'
         return PostStatus.objects.get_or_create(name=name)[0]
+
     return make_obj
 
 
@@ -183,7 +204,7 @@ def create_post_obj(db, create_role_based_user, test_content, create_post_status
 
 
 @pytest.fixture(scope='module')
-def get_data(request):
+def get_data():
     return {
         'home': 'news_blog/home.html',
         'post-detail': 'news_blog/news_detail.html',
@@ -207,6 +228,7 @@ def create_categorie_obj(db):
         if 'name' not in kwargs:
             kwargs['name'] = str(uuid.uuid4())
         return Categorie.objects.get_or_create(name=kwargs['name'])[0]
+
     return make_obj
 
 
@@ -276,5 +298,34 @@ def create_post_status_record_obj(db, create_role_based_user, create_post_obj, c
     return make_obj
 
 
+@pytest.fixture
+def create_manager_comment_obj(db, create_role_based_user, create_post_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('manager', None) is None:
+            kwargs['manager'] = create_role_based_user(name='manager')
+
+        if kwargs.get('post', None) is None:
+            kwargs['post'] = create_post_obj()
+
+        return ManagerComment.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
 
 
+@pytest.fixture
+def test_message():
+    return 'Test Message'
+
+
+@pytest.fixture
+def create_admin_notification_obj(db, create_role_based_user, create_post_obj, test_message):
+    def make_obj(**kwargs):
+        if kwargs.get('receiver', None) is None:
+            kwargs['receiver'] = create_role_based_user(name='manager')
+
+        if kwargs.get('message', None) is None:
+            kwargs['message'] = test_message
+
+        return AdminNotification.objects.get_or_create(**kwargs)[0]
+
+    return make_obj

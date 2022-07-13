@@ -1,4 +1,3 @@
-import pytest
 from django.urls import reverse, resolve
 from news_blog.views import (
     HomeView,
