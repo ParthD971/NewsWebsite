@@ -21,7 +21,7 @@ from news_blog.models import (
 )
 from django.db.models import Q
 from news_blog.paginators import CustomPaginator
-from .models import ManagerComment, AdminNotification
+from custom_admin.models import ManagerComment, AdminNotification
 from news_blog.permissions import GroupRequiredMixin
 from news_blog.helpers import get_paginated_context
 

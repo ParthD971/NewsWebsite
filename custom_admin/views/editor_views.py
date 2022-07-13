@@ -12,15 +12,15 @@ from news_blog.models import (
 )
 from django.db.models import Q
 from news_blog.paginators import CustomPaginator
-from .forms import (
+from custom_admin.forms import (
     RestoreConfirmationForm,
     DeleteConfirmationForm,
     EditorsPostUpdateForm
 )
-from .models import ManagerComment
+from custom_admin.models import ManagerComment
 from news_blog.permissions import GroupRequiredMixin
 from news_blog.helpers import get_paginated_context
-from .helpers import (
+from custom_admin.helpers import (
     get_queryset_for_created_on,
     get_queryset_for_categories,
     remove_and_update_image_for_post,

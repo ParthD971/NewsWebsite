@@ -1,6 +1,5 @@
 from django.urls import path
-from . import admin_views, manager_views, editor_views
-
+from .views import admin_views, editor_views, manager_views
 
 urlpatterns = [
     path('admin-panel/', admin_views.AdminMainPageView.as_view(), name='admin-panel'),

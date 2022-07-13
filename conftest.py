@@ -2,7 +2,8 @@ import pytest
 from django.contrib.auth.models import Group
 from users.models import UserType
 import uuid
-from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus, Post, PostStatus
+from news_blog.models import ApplicationNotification, NotificationType, NotificationStatus, Post, PostStatus, Categorie, \
+    PostRecycle, PostNotification, PostView, PostStatusRecord
 from news_blog.constants import NOTIFICATION_STATUS_PENDING, NOTIFICATION_TYPE_EDITOR_REQUEST
 
 
@@ -196,4 +197,84 @@ def get_data(request):
         'notification-from-admin': 'news_blog/notification_from_admin.html',
         # 'admin-notification-seen': 'news_blog/home.html',
     }
+
+
+@pytest.fixture
+def create_categorie_obj(db):
+    """ Fixture: creates Categorie object based on argument."""
+
+    def make_obj(**kwargs):
+        if 'name' not in kwargs:
+            kwargs['name'] = str(uuid.uuid4())
+        return Categorie.objects.get_or_create(name=kwargs['name'])[0]
+    return make_obj
+
+
+@pytest.fixture
+def create_post_recycle_obj(db, create_role_based_user, create_post_obj, create_post_status_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('deleted_by', None) is None:
+            kwargs['deleted_by'] = create_role_based_user(name='editor')
+
+        if kwargs.get('post', None) is None:
+            kwargs['post'] = create_post_obj(
+                author=kwargs['deleted_by'],
+                status=create_post_status_obj(name='deleted')
+            )
+
+        return PostRecycle.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
+
+
+@pytest.fixture
+def create_post_notification_obj(db, create_role_based_user, create_post_obj, create_notification_type_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('user', None) is None:
+            kwargs['user'] = create_role_based_user(name='consumer')
+
+        if kwargs.get('post', None) is None:
+            kwargs['post'] = create_post_obj()
+
+        if kwargs.get('notification_type', None) is None:
+            kwargs['notification_type'] = create_notification_type_obj(name='created')
+
+        return PostNotification.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
+
+
+@pytest.fixture
+def create_post_view_obj(db, create_role_based_user, create_post_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('user', None) is None:
+            kwargs['user'] = create_role_based_user(name='consumer')
+
+        if kwargs.get('post', None) is None:
+            kwargs['post'] = create_post_obj()
+
+        return PostView.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
+
+
+@pytest.fixture
+def create_post_status_record_obj(db, create_role_based_user, create_post_obj, create_post_status_obj):
+    def make_obj(**kwargs):
+        if kwargs.get('changed_by', None) is None:
+            kwargs['post'] = create_post_obj()
+            kwargs['changed_by'] = kwargs['post'].author
+
+        if kwargs.get('post', None) is None:
+            kwargs['post'] = create_post_obj(author=kwargs['changed_by'])
+
+        if kwargs.get('status', None) is None:
+            kwargs['status'] = create_post_status_obj(name='pending')
+
+        return PostStatusRecord.objects.get_or_create(**kwargs)[0]
+
+    return make_obj
+
+
+
 

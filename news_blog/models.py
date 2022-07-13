@@ -44,7 +44,7 @@ class Post(models.Model):
     premium = models.BooleanField(default=False)
     
     def __str__(self):
-        return ' | '.join([str(self.author), str(self.title), str(self.category), str(self.status)])
+        return ' | '.join([str(self.author), str(self.title), str(self.status)])
 
 
 class PCMiddle(models.Model):
@@ -110,7 +110,6 @@ class Follow(models.Model):
     author = models.ForeignKey(User, related_name='editor', on_delete=models.CASCADE, null=True)
     user = models.ForeignKey(User, related_name='consumer', on_delete=models.CASCADE, null=False)
     author_name = models.CharField(max_length=50, default=None, null=True)
-
 
 
 class PostView(models.Model):
