@@ -110,11 +110,6 @@ class ManagerPostUpdateView(GroupRequiredMixin, UpdateView):
     template_name = 'news_blog/manager_editor_post_update.html'
     group_required = [u'manager']
 
-    def get_form_kwargs(self):
-        kwargs = super(ManagerPostUpdateView, self).get_form_kwargs()
-        kwargs['object'] = self.get_object()
-        return kwargs
-
     def form_valid(self, form):
         post_obj = form.instance
 
@@ -213,11 +208,6 @@ class ManagerCategorieUpdateView(GroupRequiredMixin, UpdateView):
     success_url = reverse_lazy('manager-categorie-list')
     template_name = 'news_blog/manager_categorie_update.html'
     group_required = [u'manager']
-
-    def get_form_kwargs(self):
-        kwargs = super(ManagerCategorieUpdateView, self).get_form_kwargs()
-        kwargs['object'] = self.get_object()
-        return kwargs
 
 
 class ManagerUserListView(GroupRequiredMixin, ListView):

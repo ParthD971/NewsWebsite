@@ -44,6 +44,7 @@ class AdminUserListView(GroupRequiredMixin, ListView):
     paginate_by = 20
     paginator_class = CustomPaginator
     group_required = [u'admin']
+    ordering = ['-id']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -103,6 +104,7 @@ class AdminApplicationNotificationListView(GroupRequiredMixin, ListView):
     context_object_name = 'notifications'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -164,6 +166,7 @@ class AdminCategorieListView(GroupRequiredMixin, ListView):
     context_object_name = 'categories'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -186,6 +189,7 @@ class AdminFollowListView(GroupRequiredMixin, ListView):
     context_object_name = 'follows'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -208,6 +212,7 @@ class AdminNotificationStatusListView(GroupRequiredMixin, ListView):
     context_object_name = 'notification_statuses'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -230,6 +235,7 @@ class AdminNotificationTypeListView(GroupRequiredMixin, ListView):
     context_object_name = 'notification_types'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -252,6 +258,7 @@ class AdminPCMiddleListView(GroupRequiredMixin, ListView):
     context_object_name = 'pcmiddles'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -274,6 +281,7 @@ class AdminPostNotificationListView(GroupRequiredMixin, ListView):
     context_object_name = 'post_notifications'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -296,6 +304,7 @@ class AdminPostRecycleListView(GroupRequiredMixin, ListView):
     context_object_name = 'post_recycles'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -318,6 +327,7 @@ class AdminPostStatusRecordListView(GroupRequiredMixin, ListView):
     context_object_name = 'post_status_records'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -340,6 +350,7 @@ class AdminPostStatusListView(GroupRequiredMixin, ListView):
     context_object_name = 'post_statuses'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -362,6 +373,7 @@ class AdminPostViewsListView(GroupRequiredMixin, ListView):
     context_object_name = 'post_views'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -384,6 +396,7 @@ class AdminPostListView(GroupRequiredMixin, ListView):
     context_object_name = 'posts'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -406,6 +419,7 @@ class AdminUserTypeListView(GroupRequiredMixin, ListView):
     context_object_name = 'user_types'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -428,6 +442,7 @@ class AdminManagerCommentListView(GroupRequiredMixin, ListView):
     context_object_name = 'manager_comments'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):
@@ -450,6 +465,7 @@ class AdminNotificationListView(GroupRequiredMixin, ListView):
     context_object_name = 'notifications'
     paginate_by = 20
     paginator_class = CustomPaginator
+    ordering = ['-id']
     group_required = [u'admin']
 
     def get_context_data(self, **kwargs):

@@ -217,6 +217,50 @@ def get_data():
         'apply-for-premium-user': 'news_blog/premium_user_application.html',
         'notification-from-admin': 'news_blog/notification_from_admin.html',
         # 'admin-notification-seen': 'news_blog/home.html',
+
+        'admin-panel': 'custom_admin/admin_main_page.html',
+        'admin-user-list': 'users/admin_user_list.html',
+        'admin-user-update': 'users/admin_user_update.html',
+        'admin-categorie-list': 'news_blog/admin_categorie_list.html',
+        'admin-follow-list': 'news_blog/admin_follow_list.html',
+        'admin-notification-status-list': 'news_blog/admin_notification_status_list.html',
+        'admin-notification-type-list': 'news_blog/admin_notification_type_list.html',
+        'admin-pcmiddle-list': 'news_blog/admin_pcmiddle_list.html',
+        'admin-post-notification-list': 'news_blog/admin_post_notification_list.html',
+        'admin-post-recycle-list': 'news_blog/admin_post_recycle_list.html',
+        'admin-post-status-record-list': 'news_blog/admin_post_status_record_list.html',
+        'admin-post-status-list': 'news_blog/admin_post_status_list.html',
+        'admin-post-view-list': 'news_blog/admin_post_view_list.html',
+        'admin-post-list': 'news_blog/admin_post_list.html',
+        'admin-user-type-list': 'users/admin_user_type_list.html',
+        'admin-manager-comment-list': 'custom_admin/admin_manager_comment_list.html',
+        'admin-notification-list': 'custom_admin/admin_notification_list.html',
+        'admin-send-notification': 'custom_admin/admin_send_notification.html',
+        'admin-application-notification-list': 'users/admin_application_notification_list.html',
+        'admin-application-notification-update': 'users/admin_application_update.html',
+
+        'manager-panel': 'custom_admin/manager_home_page.html',
+        'manager-post-list': 'news_blog/manager_post_list.html',
+        'manager-post-update': 'news_blog/manager_editor_post_update.html',
+        'manager-categorie-list': 'news_blog/manager_categorie_list.html',
+        'manager-categorie-create': 'news_blog/manager_categorie_create.html',
+        'manager-categorie-update': 'news_blog/manager_categorie_update.html',
+        'manager-user-list': 'users/manager_user_list.html',
+        'manager-user-update': 'users/manager_user_update.html',
+        'manager-restore-post-list': 'news_blog/managers_restore_post_table.html',
+        'manager-restore-post': 'news_blog/editor_restore_post_confirm.html',
+        'manager-add-comment': 'custom_admin/manager_add_comment.html',
+
+        'editor-panel': '',
+        'editor-post-list': '',
+        'editor-post-create': '',
+        'editor-post-update': '',
+        'editor-post-delete': '',
+        'editor-restore-post-list': '',
+        'editor-restore-post-confirm': '',
+        'editor-comment-list': '',
+
+
     }
 
 
@@ -227,7 +271,7 @@ def create_categorie_obj(db):
     def make_obj(**kwargs):
         if 'name' not in kwargs:
             kwargs['name'] = str(uuid.uuid4())
-        return Categorie.objects.get_or_create(name=kwargs['name'])[0]
+        return Categorie.objects.get_or_create(**kwargs)[0]
 
     return make_obj
 
@@ -329,3 +373,5 @@ def create_admin_notification_obj(db, create_role_based_user, create_post_obj, t
         return AdminNotification.objects.get_or_create(**kwargs)[0]
 
     return make_obj
+
+

@@ -10,18 +10,8 @@ from .models import ManagerComment
 class CategoryForm(forms.ModelForm):
     description = forms.CharField(required=False)
 
-    def __init__(self, *args, **kwargs):
-        self.object = kwargs.pop('object', None)
-        super(CategoryForm, self).__init__(*args, **kwargs)
-
     def clean_name(self):
-        name = self.cleaned_data.get("name")
-        name = name.lower()
-        if self.object and Categorie.objects.exclude(id=self.object.id).filter(name=name).exists():
-            raise ValidationError('Category already exists.')
-        if self.object is None and Categorie.objects.filter(name=name).exists():
-            raise ValidationError('Category already exists.')
-        return name
+        return self.cleaned_data.get("name").lower()
 
     class Meta:
         model = Categorie
@@ -29,32 +19,34 @@ class CategoryForm(forms.ModelForm):
 
 
 class ManagersPostUpdateForm(forms.ModelForm):
+    title = forms.CharField(max_length=200, required=True)
+    content = forms.CharField(widget=forms.Textarea, required=True)
+
     def __init__(self, *args, **kwargs):
-        self.object = kwargs.pop('object', None)
         super().__init__(*args, **kwargs)
 
-        if hasattr(self, "instance") and self.instance:
+        if self.instance:
             # values = ['rejected', 'active', 'inreview', 'deleted', 'inactive', 'pending']
             query = None
-            if self.object.status.name == 'pending':
+            if self.instance.status.name == 'pending':
                 # SCRAPED
-                if self.object.post_type == POST_TYPE_CHOICES[0][0]:
+                if self.instance.post_type == POST_TYPE_CHOICES[0][0]:
                     query = Q(name='active') | Q(name='inreview') | Q(name='deleted')
                 # MANUAL
                 else:
                     query = Q(name='active') | Q(name='inreview') | Q(name='rejected')
-            elif self.object.status.name == 'active':
+            elif self.instance.status.name == 'active':
                 query = Q(name='inactive')
-            elif self.object.status.name == 'inreview':
+            elif self.instance.status.name == 'inreview':
                 # SCRAPED
-                if self.object.post_type == POST_TYPE_CHOICES[0][0]:
+                if self.instance.post_type == POST_TYPE_CHOICES[0][0]:
                     query = Q(name='active') | Q(name='deleted')
                 # MANUAL
                 else:
                     query = Q(name='active') | Q(name='rejected')
-            elif self.object.status.name == 'inactive':
+            elif self.instance.status.name == 'inactive':
                 # SCRAPED
-                if self.object.post_type == POST_TYPE_CHOICES[0][0]:
+                if self.instance.post_type == POST_TYPE_CHOICES[0][0]:
                     query = Q(name='active') | Q(name='deleted')
                 # MANUAL
                 else:

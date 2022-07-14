@@ -18,7 +18,7 @@ class TestManagerApplicationForm(object):
 
     def test_not_checked(self):
         """Testcase: To test error for check field."""
-        print('test_not_checked, >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+        
         data = {
             'check': False
         }
