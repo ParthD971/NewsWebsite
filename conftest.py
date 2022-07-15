@@ -373,5 +373,3 @@ def create_admin_notification_obj(db, create_role_based_user, create_post_obj, t
         return AdminNotification.objects.get_or_create(**kwargs)[0]
 
     return make_obj
-
-

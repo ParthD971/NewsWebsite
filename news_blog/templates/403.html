@@ -2,14 +2,38 @@
 
 {% block title %}Page Not Found{% endblock %}
 
-{% block css %}{% endblock %}
+{% block css %}
+
+    <style>
+    @import url('https://fonts.googleapis.com/css?family=Press+Start+2P');
+        #app{
+            font-family: 'Press Start 2P', cursive;
+            padding: 1rem;
+            background: white;
+            display: flex;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            color: black;
+            text-shadow: 0 0 10px;
+            font-size: 3rem;
+            flex-direction: column;
+        }
+    </style>
+
+{% endblock %}
 
 {% block body %}
 
     <div class="container my-3">
         <div class="row">
             <div class="col">
-                Page is Forbidden
+                <div id="app">
+                   <div>403</div>
+                   <div class="txt">
+                       Forbidden
+                   </div>
+                </div>
             </div>
         </div>
     </div>

@@ -20,7 +20,7 @@
                     <th scope="col">image</th>
                     <th scope="col">Post Type</th>
                     <th scope="col">Author Display name</th>
-                    <th scope="col">Preimium</th>
+                    <th scope="col">Premium</th>
                 </tr>
               </thead>
                 <tbody>
@@ -42,35 +42,40 @@
                 </tbody>
             </table>
 
-
-            {% if page_obj.has_previous %}
-                <a href="{% url 'admin-post-list' %}?page={{ page_obj.previous_page_number }}">
-                    Previous Page
-                </a>
-            {% endif%}
-            {% for page_number in page_obj.adjusted_elided_pages %}
-                {% if page_number == page_obj.paginator.ELLIPSIS %}
-                    {{page_number}}
-                {% else %}
-                    <a
-                        href="{% url 'admin-post-list' %}?page={{ page_number }}"
-                        class="{% if page_number == page_obj.number %}current{% endif %}"
-                    >
-                        {{ page_number }}
+            {% if page_obj|length > 1 %}
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'admin-post-list' %}?page={{ page_obj.previous_page_number }}">
+                        Previous Page
                     </a>
-                {% endif %}
-            {% endfor %}
-            {% if page_obj.has_next %}
-                <a href="{% url 'admin-post-list' %}?page={{ page_obj.next_page_number }}">
-                    Next Page
-                </a>
-            {% endif%}
+                {% endif%}
+                {% for page_number in page_obj.adjusted_elided_pages %}
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        {{page_number}}
+                    {% else %}
+                        <a
+                            href="{% url 'admin-post-list' %}?page={{ page_number }}"
+                            class="{% if page_number == page_obj.number %}current{% endif %}"
+                        >
+                            {{ page_number }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="{% url 'admin-post-list' %}?page={{ page_obj.next_page_number }}">
+                        Next Page
+                    </a>
+                {% endif%}
+            {% endif %}
         </div>
     </div>
     {% else %}
-
-        No posts
-
+        <div class="row">
+            <div class="col">
+                <div class="container">
+                    No posts
+                </div>
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

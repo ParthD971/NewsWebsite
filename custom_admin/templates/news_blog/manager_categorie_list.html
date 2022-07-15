@@ -16,23 +16,41 @@
 
 {% block body %}
 <div class="container my-3">
-    <a href="{% url 'manager-categorie-create' %}">
-        <p>Add Category</p>
-    </a>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{% url 'manager-categorie-create' %}">
+                <p class="btn btn-primary w-100" >
+                    <i class="fa fa-plus-circle" style="font-size:24px"></i>
+                    Add Category
+                </p>
+            </a>
+        </div>
+    </div>
     {% if categories %}
-        <ul>
-            {% for cat in categories %}
-                <li>
-                    <a href="{% url 'manager-categorie-update' pk=cat.id %}">
-                        {{ cat.name }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
+        <div class="row">
+            <div class="col-md-4">
+                <ul class="list-group">
+                    {% for cat in categories %}
+                        <li class="list-group-item">
+                            <a href="{% url 'manager-categorie-update' pk=cat.id %}">
+                                {{ cat.name|title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     {% else %}
-
-        No Categories
-
+        <div class="row">
+            <div class="col-md-12">
+                <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                    <h2 class="mt-3">
+                        There is no Categories
+                        <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                    </h2>
+                </div>
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

@@ -30,7 +30,7 @@
                       {% endfor %}
                   </tbody>
                 </table>
-
+            {% if page_obj|length > 1 %}
             {% with comments|first as comment %}
                 {% if page_obj.has_previous %}
                     <a href="{% url 'editor-comment-list' pk=comment.post.id %}?page={{ page_obj.previous_page_number }}">
@@ -55,6 +55,7 @@
                     </a>
                 {% endif%}
             {% endwith %}
+            {% endif %}
         {% else %}
 
             No Comments

@@ -27,32 +27,37 @@
                         </li>
                     {% endfor %}
                 </ul>
-                {% if page_obj.has_previous %}
-                    <a href="{% url 'manager-post-list' %}?page={{ page_obj.previous_page_number }}">
-                        Previous Page
-                    </a>
-                {% endif%}
-                {% for page_number in page_obj.adjusted_elided_pages %}
-                    {% if page_number == page_obj.paginator.ELLIPSIS %}
-                        {{page_number}}
-                    {% else %}
-                        <a
-                            href="{% url 'manager-post-list' %}?page={{ page_number }}"
-                            class="{% if page_number == page_obj.number %}current{% endif %}"
-                        >
-                            {{ page_number }}
+                {% if page_obj|length > 1 %}
+                    {% if page_obj.has_previous %}
+                        <a href="{% url 'manager-post-list' %}?page={{ page_obj.previous_page_number }}">
+                            Previous Page
                         </a>
-                    {% endif %}
-                {% endfor %}
-                {% if page_obj.has_next %}
-                    <a href="{% url 'manager-post-list' %}?page={{ page_obj.next_page_number }}">
-                        Next Page
-                    </a>
-                {% endif%}
+                    {% endif%}
+                    {% for page_number in page_obj.adjusted_elided_pages %}
+                        {% if page_number == page_obj.paginator.ELLIPSIS %}
+                            {{page_number}}
+                        {% else %}
+                            <a
+                                href="{% url 'manager-post-list' %}?page={{ page_number }}"
+                                class="{% if page_number == page_obj.number %}current{% endif %}"
+                            >
+                                {{ page_number }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                        <a href="{% url 'manager-post-list' %}?page={{ page_obj.next_page_number }}">
+                            Next Page
+                        </a>
+                    {% endif%}
+                {% endif %}
             {% else %}
-
-                No News Posts
-
+                <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                    <h2 class="mt-5">
+                        There is no posts
+                        <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                    </h2>
+                </div>
             {% endif %}
         </div>
         <div class="col-md-2">

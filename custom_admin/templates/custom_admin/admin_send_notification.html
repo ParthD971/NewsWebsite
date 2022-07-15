@@ -34,15 +34,18 @@
                     </div>
 
                     <br>
-
-                    {% for user in users %}
-                        <div class="form-check">
-                          <input class="form-check-input checkBoxClass" name="checks[]" type="checkbox" value="{{ user.id }}" id="{{ user.id }}">
-                          <label class="form-check-label" for="{{ user.id }}">
-                            {{ user.first_name }}
-                          </label>
-                        </div>
-                    {% endfor %}
+                    {% if users %}
+                        {% for user in users %}
+                            <div class="form-check">
+                              <input class="form-check-input checkBoxClass" name="checks[]" type="checkbox" value="{{ user.id }}" id="{{ user.id }}">
+                              <label class="form-check-label" for="{{ user.id }}">
+                                {{ user.first_name }}
+                              </label>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="invalid-feedback">No Users</p>
+                    {% endif %}
                     {% if users_error %}
                         <div class="invalid-feedback" >
                             {{ users_error }}

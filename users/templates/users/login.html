@@ -1,21 +1,25 @@
 {% extends "news_blog/base.html" %}
+{% load crispy_forms_filters %}
 
 {% block title %}Login Page{% endblock %}
 
 {% block css %}{% endblock %}
 
 {% block body %}
-{% load crispy_forms_tags %}
-<div class="container">
-  <h1>Login</h1>
-  <form method="POST">
-    {% csrf_token %}
-    {{ login_form|crispy }}
-    <button class="btn btn-primary" type="submit">Login</button>
-  </form>
-    <a href="{% url 'password-reset' %}"><i>Forgot Password?</i></a>
-  <p class="text-center">Don't have an account? <a href="{% url 'register' %}">Create an account</a>.</p>
-
+    <div class="container my-3">
+        <div class="row">
+            <div class="col-md-4 offset-md-4">
+                <h1 class="text-center">Login</h1>
+                <form method="POST">
+                    {% csrf_token %}
+                    {{ login_form|crispy }}
+                    <p><a href="{% url 'password-reset' %}"><i>Forgot Password?</i></a></p>
+                    <button class="btn btn-primary" type="submit">Login</button>
+                </form>
+                <br>
+                <p class="text-muted">Don't have an account? <a href="{% url 'register' %}">Create an account</a>.</p>
+            </div>
+        </div>
 </div>
 
 {% endblock %}

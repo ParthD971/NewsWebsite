@@ -1,22 +1,54 @@
 {% extends "news_blog/base.html" %}
+{% load crispy_forms_filters %}
 
 {% block title %}Profile{% endblock %}
 
 {% block css %}{% endblock %}
 
-
 {% block body %}
 
-{% load crispy_forms_tags %}
-<div class="container">
-  <h1>Profile</h1>
-	<form method="POST">
-		{% csrf_token %}
-		{{ form|crispy }}
-		<button class="btn btn-primary" type="submit">Save</button>
-	</form>
+<div class="container my-3">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center">Profile</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-4 offset-md-2">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form|crispy }}
+		        <button class="btn btn-primary" type="submit">Save Profile</button>
+	        </form>
+        </div>
+        <div class="col-md-4 mt-3 p-3">
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <td>User Type</td>
+                        <td>{{ object.user_type.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>Email</td>
+                        <td>{{ object.email }}</td>
+                    </tr>
+                    <tr>
+                        <td>Blocked</td>
+                        <td>{% if object.is_blocked %}Yes{% else %}No{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>Premium</td>
+                        <td>{% if object.is_premium_user %}Yes{% else %}No{% endif %}</td>
+                    </tr>
+                    <tr>
+                        <td>Active</td>
+                        <td>{% if object.is_active %}Yes{% else %}No{% endif %}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
-
 
 {% endblock %}
 

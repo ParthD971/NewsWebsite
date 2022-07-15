@@ -4,24 +4,67 @@
 
 {% block body %}
     <div class="container my-3">
+        <div class="row">
+            <h3>Notification for <strong>{{ object.notification_type.name|title }}</strong></h3>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-4">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td>First Name</td>
+                            <td>{{ object.user.first_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Name</td>
+                            <td>{% if object.user.last_name %}{{ object.user.lastname }}{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Age</td>
+                            <td>{% if object.user.age %}{{ object.user.age }}{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>User Type</td>
+                            <td>{{ object.user.user_type.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-4">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td>Email</td>
+                            <td>{{ object.user.email }}</td>
+                        </tr>
+                        <tr>
+                            <td>Blocked</td>
+                            <td>{% if object.user.is_blocked %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Premium</td>
+                            <td>{% if object.user.is_premium_user %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Active</td>
+                            <td>{% if object.user.is_active %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                {% load crispy_forms_tags %}
+                <form method = "POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input class="btn btn-primary" type="submit" value="Submit">
+                </form>
+            </div>
+        </div>
 
-        first_name - {{ object.user.first_name }} <br>
-        last_name - {{ object.user.last_name }} <br>
-        age - {{ object.user.age }} <br>
-        user_type - {{ object.user.user_type.name }} <br>
-        email - {{ object.user.email }} <br>
-        is_blocked - {{ object.user.is_blocked }} <br>
-        is_premium_user - {{ object.user.is_premium_user }} <br>
-        is_active - {{ object.user.is_active }} <br> <br>
 
-        <p>Notification for <strong>{{ object.notification_type.name }}</strong></p>
-
-        {% load crispy_forms_tags %}
-        <form method = "POST">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <input type="submit" value="Save">
-        </form>
     </div>
 {% endblock %}
 

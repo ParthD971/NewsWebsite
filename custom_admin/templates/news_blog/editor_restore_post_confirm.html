@@ -1,4 +1,5 @@
 {% extends "news_blog/base.html" %}
+{% load crispy_forms_filters %}
 
 {% block title %}
 
@@ -10,16 +11,16 @@
 
 {% block body %}
     <div class="container my-3">
-        Are you sure you want to restore this post?
-
-        {% load crispy_forms_tags %}
-        <form method = "POST">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <input type="submit" value="Restore">
-        </form>
-
-
+        <div class="row">
+            <div class="col offset-md-1">
+                <h1>Are you sure you want to restore this post?</h1>
+                <form method = "POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input type="submit" value="Restore Post" class="btn btn-success">
+                </form>
+            </div>
+        </div>
     </div>
 {% endblock %}
 

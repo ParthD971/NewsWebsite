@@ -22,29 +22,30 @@
                 </tbody>
             </table>
 
-
-            {% if page_obj.has_previous %}
-                <a href="{% url 'admin-notification-status-list' %}?page={{ page_obj.previous_page_number }}">
-                    Previous Page
-                </a>
-            {% endif%}
-            {% for page_number in page_obj.adjusted_elided_pages %}
-                {% if page_number == page_obj.paginator.ELLIPSIS %}
-                    {{page_number}}
-                {% else %}
-                    <a
-                        href="{% url 'admin-notification-status-list' %}?page={{ page_number }}"
-                        class="{% if page_number == page_obj.number %}current{% endif %}"
-                    >
-                        {{ page_number }}
+            {% if page_obj|length > 1 %}
+                {% if page_obj.has_previous %}
+                    <a href="{% url 'admin-notification-status-list' %}?page={{ page_obj.previous_page_number }}">
+                        Previous Page
                     </a>
-                {% endif %}
-            {% endfor %}
-            {% if page_obj.has_next %}
-                <a href="{% url 'admin-notification-status-list' %}?page={{ page_obj.next_page_number }}">
-                    Next Page
-                </a>
-            {% endif%}
+                {% endif%}
+                {% for page_number in page_obj.adjusted_elided_pages %}
+                    {% if page_number == page_obj.paginator.ELLIPSIS %}
+                        {{page_number}}
+                    {% else %}
+                        <a
+                            href="{% url 'admin-notification-status-list' %}?page={{ page_number }}"
+                            class="{% if page_number == page_obj.number %}current{% endif %}"
+                        >
+                            {{ page_number }}
+                        </a>
+                    {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                    <a href="{% url 'admin-notification-status-list' %}?page={{ page_obj.next_page_number }}">
+                        Next Page
+                    </a>
+                {% endif%}
+            {% endif %}
         </div>
     </div>
     {% else %}

@@ -1,4 +1,5 @@
 {% extends "news_blog/base.html" %}
+{% load crispy_forms_filters %}
 
 {% block title %}
 
@@ -10,24 +11,29 @@
 
 {% block body %}
     <div class="container my-3">
-        {% load crispy_forms_tags %}
-        <form method = "POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {{ form|crispy }}
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <form method = "POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
 
-            {% if user.user_type.name == 'manager' %}
-                <input type="submit" value="Save">
-            {% elif user.user_type.name == 'editor' %}
-                {% if object.status.name == 'rejected' or object.status.name == 'pending' %}
-                    <input type="submit" value="Save">
-                    <a href="{% url 'editor-post-delete' pk=object.id %}" class='btn btn-danger'>Delete</a>
-                {% endif %}
-            {% endif %}
+                    {% if user.user_type.name == 'manager' %}
+                        <input type="submit" value="Update Post" class="btn btn-primary">
+                    {% elif user.user_type.name == 'editor' %}
+                        {% if object.status.name == 'rejected' or object.status.name == 'pending' %}
+                            <input type="submit" value="Update Post" class="btn btn-primary">
+                            <a href="{% url 'editor-post-delete' pk=object.id %}" class='btn btn-danger'>Delete</a>
+                        {% endif %}
+                    {% endif %}
+                    {% if user.is_authenticated and user.user_type.name == 'manager' and object.post_type == 'MANUAL' %}
+                        <a href="{% url 'manager-add-comment' pk=object.id %}" class='btn btn-secondary'> Comment </a>
+                    {% endif %}
 
-        </form>
-            {% if user.is_authenticated and user.user_type.name == 'manager' and object.post_type == 'MANUAL' %}
-                <a href="{% url 'manager-add-comment' pk=object.id %}" class='btn btn-secondary'> Comment </a>
-            {% endif %}
+                </form>
+            </div>
+        </div>
+
+
     </div>
 {% endblock %}
 

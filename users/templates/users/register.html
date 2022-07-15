@@ -1,24 +1,25 @@
 {% extends "news_blog/base.html" %}
+{% load crispy_forms_filters %}
 
-{% block title %}Register Pagee{% endblock %}
+{% block title %}Register Page{% endblock %}
 
 {% block css %}{% endblock %}
 
-
-
 {% block body %}
 
-{% load crispy_forms_tags %}
-<div class="container">
-  <h1>Register</h1>
-	<form method="POST">
-		{% csrf_token %}
-		{{ register_form|crispy }}
-		<button class="btn btn-primary" type="submit">Register</button>
-	</form>
-	<p class="text-center">If you already have an account, <a href="{% url 'login' %}">login</a> instead.</p>
+<div class="container my-3">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <h1 class="text-center">Register</h1>
+            <form method="POST">
+                {% csrf_token %}
+                {{ register_form|crispy }}
+                <button class="btn btn-primary" type="submit">Register</button>
+            </form>
+            <p class="mt-3 text-muted">If you already have an account, <a href="{% url 'login' %}">login</a> instead.</p>
+        </div>
+    </div>
 </div>
-
 
 {% endblock %}
 

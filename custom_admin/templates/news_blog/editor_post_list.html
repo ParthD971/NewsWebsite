@@ -1,6 +1,19 @@
 {% extends "custom_admin/editor_main_page.html" %}
 
-{% block css %}{% endblock %}
+{% block css %}
+
+    <style>
+        tr:hover {
+            background: #e1e1e1;
+            cursor: pointer;
+        }
+        td a {
+            display: block;
+            text-decoration: none;
+        }
+    </style>
+
+{% endblock %}
 
 
 {% block search %}
@@ -12,57 +25,76 @@
 
 {% endblock %}
 
-
-
 {% block body %}
 <div class="container my-3">
     <div class="row">
-        <a href="{% url 'editor-post-create' %}">
-            <p>Add News Post</p>
-        </a>
+        <div class="col-md-10">
+            <a href="{% url 'editor-post-create' %}" >
+                <p class="btn btn-primary w-100" >
+                    <i class="fa fa-plus-circle" style="font-size:24px"></i>
+                    Add News Post
+                </p>
+            </a>
+        </div>
     </div>
     <div class="row">
             <div class="col-md-10">
                 {% if posts %}
-                    <ul>
-                        {% for post in posts %}
-                            <li>
-                                <a href="{% url 'editor-post-update' pk=post.id %}">
-                                    {{ post }}
-                                </a>
-                                -
-                                <a href="{% url 'editor-comment-list' pk=post.id %}">
-                                    View Comments
-                                </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                    {% if page_obj.has_previous %}
-                        <a href="{% url 'editor-post-list' %}?page={{ page_obj.previous_page_number }}">
-                            Previous Page
-                        </a>
-                    {% endif%}
-                    {% for page_number in page_obj.adjusted_elided_pages %}
-                        {% if page_number == page_obj.paginator.ELLIPSIS %}
-                            {{page_number}}
-                        {% else %}
-                            <a
-                                href="{% url 'editor-post-list' %}?page={{ page_number }}"
-                                class="{% if page_number == page_obj.number %}current{% endif %}"
-                            >
-                                {{ page_number }}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Post</th>
+                                <th scope="col">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for post in posts %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'editor-post-update' pk=post.id %}">
+                                            {{ post.title|truncatechars:20 }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'editor-comment-list' pk=post.id %}" class="btn btn-secondary">
+                                            View Comments
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if page_obj|length > 1 %}
+                        {% if page_obj.has_previous %}
+                            <a href="{% url 'editor-post-list' %}?page={{ page_obj.previous_page_number }}">
+                                Previous Page
                             </a>
-                        {% endif %}
-                    {% endfor %}
-                    {% if page_obj.has_next %}
-                        <a href="{% url 'editor-post-list' %}?page={{ page_obj.next_page_number }}">
-                            Next Page
-                        </a>
-                    {% endif%}
+                        {% endif%}
+                        {% for page_number in page_obj.adjusted_elided_pages %}
+                            {% if page_number == page_obj.paginator.ELLIPSIS %}
+                                {{page_number}}
+                            {% else %}
+                                <a
+                                    href="{% url 'editor-post-list' %}?page={{ page_number }}"
+                                    class="{% if page_number == page_obj.number %}current{% endif %}"
+                                >
+                                    {{ page_number }}
+                                </a>
+                            {% endif %}
+                        {% endfor %}
+                        {% if page_obj.has_next %}
+                            <a href="{% url 'editor-post-list' %}?page={{ page_obj.next_page_number }}">
+                                Next Page
+                            </a>
+                        {% endif%}
+                    {% endif %}
                 {% else %}
-
-                    No News Posts
-
+                    <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                        <h2 class="mt-5">
+                            There is no posts
+                            <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                        </h2>
+                    </div>
                 {% endif %}
             </div>
         <div class="col-md-2">

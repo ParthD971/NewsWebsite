@@ -35,7 +35,7 @@
             </li>
 
 {#          {% if user.user_type.name == 'editor' or user.user_type.name == 'manager' %}#}
-          {% if user.is_authenticated %}
+          {% if user.is_authenticated and user.user_type.name != 'admin' %}
             <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="{% url 'notification-from-admin' %}">Notification from Admin</a>
             </li>
