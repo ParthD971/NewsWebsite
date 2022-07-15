@@ -17,3 +17,5 @@ Twisted
 stripe==3.5.0
 uvicorn
 pytest-django
+coverage
+pytest-cov

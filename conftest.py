@@ -251,14 +251,14 @@ def get_data():
         'manager-restore-post': 'news_blog/editor_restore_post_confirm.html',
         'manager-add-comment': 'custom_admin/manager_add_comment.html',
 
-        'editor-panel': '',
-        'editor-post-list': '',
-        'editor-post-create': '',
-        'editor-post-update': '',
-        'editor-post-delete': '',
-        'editor-restore-post-list': '',
-        'editor-restore-post-confirm': '',
-        'editor-comment-list': '',
+        'editor-panel': 'custom_admin/editor_main_page.html',
+        'editor-post-list': 'news_blog/editor_post_list.html',
+        'editor-post-create': 'news_blog/editor_post_create.html',
+        'editor-post-update': 'news_blog/manager_editor_post_update.html',
+        'editor-post-delete': 'news_blog/editor_post_delete.html',
+        'editor-restore-post-list': 'news_blog/editor_restore_post_list.html',
+        'editor-restore-post-confirm': 'news_blog/editor_restore_post_confirm.html',
+        'editor-comment-list': 'custom_admin/editor_comment_list.html',
 
 
     }
