@@ -7,7 +7,7 @@
 {% block body %}
     <div class="container my-3">
         {% if notifications %}
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th scope="col">Message</th>
@@ -20,7 +20,7 @@
                         <tr>
                             <td>{{ notification.message }}</td>
                             <td>{{ notification.time }}</td>
-                            <td>{% if notification.seen %}Marked Read{% else %}<span id="{{ notification.id }}" class="btn btn-primary mark-read">Mark Read</span>{% endif %}</td>
+                            <td>{% if notification.seen %}Yes{% else %}<span id="{{ notification.id }}" class="btn btn-primary mark-read">Mark Read</span>{% endif %}</td>
                           </tr>
                     {% endfor %}
                 </tbody>

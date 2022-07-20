@@ -91,6 +91,8 @@ def create_role_based_user(db, create_groups, create_user_types, create_user, te
         name = kwargs.pop('name', 'consumer')
         user = create_user(**kwargs)
         user.user_type = UserType.objects.get(name=name)
+        if name != 'consumer':
+            user.is_staff = True
         grp = Group.objects.get(name=name)
         grp.user_set.add(user)
         user.save()

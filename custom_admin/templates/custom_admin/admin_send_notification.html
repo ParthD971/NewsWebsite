@@ -15,6 +15,20 @@
             color: #dc3545;
         }
 
+        #users-container {
+            color: #212529;
+            background-color: #fff;
+            font-size: 1rem;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+            max-height: 150px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 1rem 0.75rem;
+            border-radius: 0.25rem;
+        }
+
     </style>
 
 
@@ -29,20 +43,21 @@
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input" id="ckbCheckAll" />
                         <label class="form-check-label" for="{{ user.id }}">
-                            Check all
+                            <strong>Check all</strong>
                         </label>
                     </div>
 
-                    <br>
                     {% if users %}
-                        {% for user in users %}
-                            <div class="form-check">
-                              <input class="form-check-input checkBoxClass" name="checks[]" type="checkbox" value="{{ user.id }}" id="{{ user.id }}">
-                              <label class="form-check-label" for="{{ user.id }}">
-                                {{ user.first_name }}
-                              </label>
-                            </div>
-                        {% endfor %}
+                        <div id="users-container">
+                            {% for user in users %}
+                                <div class="form-check">
+                                  <input class="form-check-input checkBoxClass" name="checks[]" type="checkbox" value="{{ user.id }}" id="{{ user.id }}">
+                                  <label class="form-check-label" for="{{ user.id }}">
+                                    {{ user.first_name }} <small class="text-muted">({{ user.email }})</small>
+                                  </label>
+                                </div>
+                            {% endfor %}
+                        </div>
                     {% else %}
                         <p class="invalid-feedback">No Users</p>
                     {% endif %}
@@ -51,8 +66,6 @@
                             {{ users_error }}
                         </div>
                     {% endif %}
-
-
                     <br>
                     <br>
                     <div class="form-floating">
@@ -65,7 +78,7 @@
                         </div>
                     {% endif %}
                     <br>
-                    <input type="submit" class="btn btn-info" value="Send">
+                    <input type="submit" class="btn btn-success" value="Send">
                 </form>
             </div>
         </div>

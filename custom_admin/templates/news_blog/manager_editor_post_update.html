@@ -3,7 +3,7 @@
 
 {% block title %}
 
-    {{ user.user_type|title }} Panel
+    {{ user.user_type.name|title }} Panel
 
 {% endblock %}
 
@@ -13,20 +13,21 @@
     <div class="container my-3">
         <div class="row">
             <div class="col-md-10 offset-md-1">
+                <h3 class="text-center mt-3">Update Post</h3>
                 <form method = "POST" enctype="multipart/form-data">
                     {% csrf_token %}
                     {{ form|crispy }}
 
                     {% if user.user_type.name == 'manager' %}
-                        <input type="submit" value="Update Post" class="btn btn-primary">
+                        <input type="submit" value="Update Post" class="btn btn-success">
                     {% elif user.user_type.name == 'editor' %}
                         {% if object.status.name == 'rejected' or object.status.name == 'pending' %}
-                            <input type="submit" value="Update Post" class="btn btn-primary">
+                            <input type="submit" value="Update Post" class="btn btn-success">
                             <a href="{% url 'editor-post-delete' pk=object.id %}" class='btn btn-danger'>Delete</a>
                         {% endif %}
                     {% endif %}
                     {% if user.is_authenticated and user.user_type.name == 'manager' and object.post_type == 'MANUAL' %}
-                        <a href="{% url 'manager-add-comment' pk=object.id %}" class='btn btn-secondary'> Comment </a>
+                        <a href="{% url 'manager-add-comment' pk=object.id %}" class='btn btn-primary'> Comment </a>
                     {% endif %}
 
                 </form>
@@ -37,4 +38,14 @@
     </div>
 {% endblock %}
 
-{% block js %}{% endblock %}
+{% block js %}
+
+    <script>
+        $(document).ready(function(){
+            $("textarea").attr({"rows": "3"
+            });
+        });
+
+    </script>
+
+{% endblock %}

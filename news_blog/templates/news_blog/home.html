@@ -21,6 +21,32 @@
             left: auto;
             right: 0;
         }
+        #category-container {
+            color: #212529;
+            background-color: #fff;
+            font-size: 1rem;
+            background-clip: padding-box;
+            border: 1px solid #ced4da;
+            transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+            max-height: 150px;
+            overflow-x: hidden;
+            overflow-y: auto;
+            padding: 1rem 0.75rem;
+            border-radius: 0.25rem;
+        }
+        .carousel-item:after {
+            content:"";
+            display:block;
+            position:absolute;
+            top:0;
+            bottom:0;
+            left:0;
+            right:0;
+            background:rgba(0,0,0,0.5);
+        }
+        .carousel-caption {
+            z-index: 3;
+        }
     </style>
 
 {% endblock %}
@@ -42,7 +68,7 @@
                                 {% if noti.notification_type.name == 'post added' %}
                                     <a class="dropdown-item noti-item" href="{% url 'post-detail' pk=noti.post.id %}">
                                         <p>
-                                            <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
+                                            <strong>{{ noti.post.title|truncatechars:20 }}</strong>
                                             <br>
                                             By {{ noti.post.author_display_name }}
                                         </p>
@@ -50,7 +76,7 @@
                                 {% elif noti.notification_type.name == 'post deleted' %}
                                     <span class="dropdown-item">
                                         Deleted:
-                                        <strong>{{ noti.post.title|slice:":20" }}{% if noti.post.title|length > 20 %}...{% endif %}</strong>
+                                        <strong>{{ noti.post.title|truncatechars:20 }}</strong>
                                         <br>
                                         By {{ noti.post.author_display_name }}
                                     </span>
@@ -89,7 +115,7 @@
     <div class="row">
         <div class="col-md-8">
             {% if trending_posts %}
-                <h4 style="text-align: center"><span>Trending News</span></h4>
+                <h3 style="text-align: center"><span>Trending News</span></h3>
                 <div id="trendingNews" class="carousel slide" data-bs-ride="carousel">
                   <div class="carousel-indicators">
                     {% for tpost in trending_posts %}
@@ -98,17 +124,18 @@
                   </div>
                   <div class="carousel-inner">
                       {% for tpost in trending_posts %}
-                        <div class="carousel-item {% if forloop.counter0 == 0 %}active{% endif %}">
-                            <div class="item" style="background-image: url({{ tpost.image.url }})"></div>
-                          <div class="carousel-caption d-none d-md-block">
-                            <h5>
-                            <a href="{% url 'post-detail' pk=tpost.id %}">{{ tpost.title|slice:":80" }}{% if tpost.title|length > 80 %}...{% endif %}</a>
-                            </h5>
-                            <p>{{ tpost.content|slice:":150" }}{% if tpost.content|length > 150 %}...{% endif %}</p>
+                          <div class="carousel-item {% if forloop.counter0 == 0 %}active{% endif %}">
+                              <div class="item" style="background-image: url({{ tpost.image.url }})"></div>
+                              <a href="{% url 'post-detail' pk=tpost.id %}">
+                                  <div class="carousel-caption d-none d-md-block">
+                                      <h1>
+                                              {{ tpost.title|truncatechars:20 }}
+                                      </h1>
+                                      <p>{{ tpost.content|truncatechars:100 }}</p>
+                                  </div>
+                              </a>
                           </div>
-                        </div>
                       {% endfor %}
-
                   </div>
                   <button class="carousel-control-prev" type="button" data-bs-target="#trendingNews" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
@@ -124,56 +151,54 @@
         <div class="col-md-4">
         {% if trending_posts %}
             <form method="GET" class="d-flex">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Filter</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>
-                          Date
-                          <input type="date" id="created_on" name="created_on">
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                          <th class="text-center">Filter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                Date
+                                <input type="date" id="created_on" name="created_on">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div id="category-container">
+                                    {% for cat in categories %}
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" name="{{ cat.name }}" value="1" id="{{ cat.name }}">
+                                            <label class="form-check-label" for="{{ cat.name }}">
+                                                {{ cat.name }}
+                                            </label>
+                                        </div>
+                                  {% endfor %}
+                                </div>
+                            </td>
+                        </tr>
 
-                          {% for cat in categories %}
-                              <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" name="{{ cat.name }}" value="1" id="{{ cat.name }}">
-                                  <label class="form-check-label" for="{{ cat.name }}">
-                                        {{ cat.name }}
-                                  </label>
-                              </div>
-                          {% endfor %}
-
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>
-                          <div>
-                              <label for="editors">Editor</label>
-                          </div>
-                          <select name="author" id="editors">
-                            <option value="">--</option>
-                                {% for author in authors %}
-                                    <option value="{{ author.author_display_name }}">{{ author.author_display_name }}</option>
-                                {% endfor %}
-                          </select>
-                      </td>
-                    </tr>
-                  <tr>
-                      <td>
-                          <button class="btn btn-outline-success" type="submit">Filter</button>
-                      </td>
-                    </tr>
-
-                  </tbody>
+                        <tr>
+                            <td>
+                                <div>
+                                    <label for="editors">Editor</label>
+                                </div>
+                                <select name="author" id="editors">
+                                    <option value="">--</option>
+                                        {% for author in authors %}
+                                            <option value="{{ author.author_display_name }}">{{ author.author_display_name }}</option>
+                                        {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-center">
+                                <button class="btn btn-outline-success" type="submit">Filter</button>
+                            </td>
+                        </tr>
+                    </tbody>
                 </table>
-
             </form>
         {% endif %}
         </div>
@@ -191,18 +216,27 @@
                         <div class="col-md-8">
                           <div class="card-body">
                             <h5 class="card-title">
-                                <a href="{% url 'post-detail' pk=post.id %}">{{ post.title|slice:":80" }}{% if post.title|length > 80 %}...{% endif %}</a>
+                                <a href="{% url 'post-detail' pk=post.id %}" style="text-decoration: none;">{{ post.title|truncatechars:55 }}</a>
                             </h5>
-                            <p class="card-text">{{ post.content|slice:":255" }}{% if post.content|length > 255 %}...{% endif %}</p>
-                              -- By <strong>{{ post.author_display_name }}</strong>
-                          {% if post.premium %}
-                              <span class="badge bg-danger">Premium</span>
-                          {% endif %}
                             <p class="card-text">
-                                <small class="text-muted">{{ post.created_on }}</small>
+                                {{ post.content|truncatechars:200 }}
                             </p>
-                            <p>
-                                <i class="fa fa-eye"></i> {{ post.views }}
+
+                            <p class="card-text">
+                                <small class="text-muted">
+                                    Author: {{ post.author_display_name|title }}
+                                    {% if post.premium %}
+                                        <span class="badge bg-danger">Premium</span>
+                                    {% endif %}
+                                    <strong>&#183;</strong>
+                                    {{ post.views }} views
+                                    <strong>&#183;</strong>
+                                    {% if post.is_older_than_seven_days %}
+                                        {{ post.created_on }}
+                                        {% else %}
+                                        {{ post.created_on|timesince }} ago
+                                    {% endif %}
+                                </small>
                             </p>
                           </div>
                         </div>
@@ -234,7 +268,7 @@
             {% else %}
                 <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
                     <h2 class="mt-3">
-                        There is no posts
+                        There are no posts
                         <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
                     </h2>
                 </div>

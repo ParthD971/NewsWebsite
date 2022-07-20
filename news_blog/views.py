@@ -1,4 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
+
+from custom_admin.helpers import get_queryset_for_categories, get_queryset_for_created_on
 from .models import (
     Post,
     ApplicationNotification,
@@ -52,16 +54,16 @@ class HomeView(ListView):
             # filter by display name
             queryset = queryset.filter(author_display_name=author_display_name)
 
-        # for date filter
-        created_on = self.request.GET.get('created_on', '').strip()
-        if created_on:
-            created_on = datetime.strptime(created_on, '%Y-%m-%d').date()
-            queryset = queryset.filter(created_on=created_on)
+        queryset = get_queryset_for_created_on(
+            request=self.request,
+            queryset=queryset
+        )
 
-        categories = Categorie.objects.all()
-        lis = [cat.name for cat in categories if self.request.GET.get(cat.name, '').strip()]
-        if lis:
-            queryset = queryset.filter(category__name__in=lis)
+        queryset = get_queryset_for_categories(
+            request=self.request,
+            queryset=queryset,
+            categories=Categorie.objects.all()
+        )
 
         return queryset
 
@@ -183,9 +185,9 @@ class EditorApplicationView(GroupRequiredMixin, SuccessMessageMixin, FormView):
                 application_notification.save()
                 messages.success(self.request, 'Application for editor submitted.')
             except NotificationType.DoesNotExist as e:
-                messages.error(self.request, 'NotificationType not exists: ' + e)
+                messages.error(self.request, 'NotificationType not exists: ' + str(e))
             except NotificationStatus.DoesNotExist as e:
-                messages.error(self.request, 'NotificationStatus not exists: ' + e)
+                messages.error(self.request, 'NotificationStatus not exists: ' + str(e))
         else:
             messages.error(self.request, 'Form not valid')
         return super().form_valid(form)

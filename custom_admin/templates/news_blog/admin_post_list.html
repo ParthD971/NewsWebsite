@@ -1,46 +1,39 @@
 {% extends "custom_admin/admin_main_page.html" %}
 
-{% block css %}{% endblock %}
+{% block css %}
+
+    <style>
+        p {
+            margin: 0;
+        }
+    </style>
+
+{% endblock %}
 
 {% block body %}
-<div class="container-fluid my-3">
+<div class="container my-3">
     <div class="row">
     {% if posts %}
-        <div class="col">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th scope="col">Title</th>
-                    <th scope="col">Author</th>
-                    <th scope="col">Content</th>
-                    <th scope="col">Created On</th>
-                    <th scope="col">Views</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Categories</th>
-                    <th scope="col">image</th>
-                    <th scope="col">Post Type</th>
-                    <th scope="col">Author Display name</th>
-                    <th scope="col">Premium</th>
-                </tr>
-              </thead>
-                <tbody>
-                    {% for post in posts %}
-                        <tr>
-                            <td>{{ post.title|slice:":20" }}...</td>
-                            <td>{% if not post.author %}-{% else %}{{ post.author.first_name }}{% endif %}</td>
-                            <td>{{ post.content|slice:":20" }}...</td>
-                            <td>{{ post.created_on }}</td>
-                            <td>{{ post.views }}</td>
-                            <td>{{ post.status.name }}</td>
-                            <td>{% for tag in post.category.all %}{{ tag }}<br>{% endfor %}</td>
-                            <td><a href="{{ post.image.url }}">Image</a> </td>
-                            <td>{{ post.post_type.name }}</td>
-                            <td>{{ post.author_display_name }}</td>
-                            <td>{{ post.premium  }}</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+{#        <div class="col">#}
+            {% for post in posts %}
+                <div class="col">
+                    <div class="card" style="width: 18rem;">
+                        <img src="{{ post.image.url }}" class="card-img-top" alt="...">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ post.title|truncatechars:20 }}</h5>
+                            <p class="card-text">{{ post.content|truncatechars:100 }}</p>
+                            <p class="card-text"><strong>Author:</strong> {% if post.author %}{{ post.author.first_name|title }}<br><span class="text-muted">{{ post.author.email }}</span>{% else %}-{% endif %}</p>
+                            <p class="card-text"><strong>Created On:</strong> {{ post.created_on }}</p>
+                            <p class="card-text"><strong>Views:</strong> {{ post.views }}</p>
+                            <p class="card-text"><strong>Status:</strong> {{ post.status.name|title }}</p>
+                            <p class="card-text"><strong>Categories:</strong> {% for cat in post.category.all %}{% if forloop.last %}{{ cat|title }}{% else %}{{ cat|title }}, {% endif %}{% endfor %}</p>
+                            <p class="card-text"><strong>Type:</strong> {{ post.post_type|title }}</p>
+                            <p class="card-text"><strong>Author display:</strong> {{ post.author_display_name|title }}</p>
+                            <p class="card-text"><strong>Premium post:</strong> {% if post.premium %}Yes{% else %}No{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
 
             {% if page_obj|length > 1 %}
                 {% if page_obj.has_previous %}
@@ -66,13 +59,16 @@
                     </a>
                 {% endif%}
             {% endif %}
-        </div>
+{#        </div>#}
     </div>
     {% else %}
         <div class="row">
             <div class="col">
-                <div class="container">
-                    No posts
+                <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                    <h2 class="mt-5">
+                        There are no posts
+                        <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                    </h2>
                 </div>
             </div>
         </div>

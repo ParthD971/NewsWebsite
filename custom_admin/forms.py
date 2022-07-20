@@ -83,42 +83,11 @@ class DeleteConfirmationForm(forms.Form):
 
 
 class ManagersUserUpdateForm(forms.ModelForm):
-    age = forms.IntegerField(required=False)
-    user_type = forms.CharField(required=False)
-
-    def __init__(self, *args, **kwargs):
-        super(ManagersUserUpdateForm, self).__init__(*args, **kwargs)
-        self.instance = getattr(self, 'instance', None)
-        if self.instance and self.instance.pk:
-            self.fields['first_name'].widget.attrs['readonly'] = True
-            self.fields['last_name'].widget.attrs['readonly'] = True
-            self.fields['age'].widget.attrs['readonly'] = True
-            self.fields['email'].widget.attrs['readonly'] = True
-            self.fields['user_type'].widget.attrs['disabled'] = True
-            self.fields['is_premium_user'].widget.attrs['disabled'] = True
-            self.initial['user_type'] = self.instance.user_type.name
-
-    def clean_first_name(self):
-        return self.instance.first_name
-
-    def clean_last_name(self):
-        return self.instance.last_name
-
-    def clean_age(self):
-        return self.instance.age
-
-    def clean_email(self):
-        return self.instance.email
-
-    def clean_user_type(self):
-        return self.instance.user_type
-
-    def clean_is_premium_user(self):
-        return self.instance.is_premium_user
+    is_blocked = forms.BooleanField(label='Block User', required=False)
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'age', 'user_type', 'email', 'is_blocked', 'is_premium_user']
+        fields = ['is_blocked']
 
 
 class ManagersAddCommentForm(forms.ModelForm):

@@ -19,15 +19,35 @@
     <div class="row">
         <div class="col-md-10">
             {% if users %}
-                <ul>
-                    {% for user in users %}
-                        <li>
-                            <a href="{% url 'admin-user-update' pk=user.id %}">
-                                {{ user.user_type.name }} - {{ user.first_name }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Users</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_obj in users %}
+                            <tr>
+                                <td>
+                                    <strong>({{ user_obj.user_type.name|title }})</strong>
+                                    <span>{{ user_obj.first_name }}</span> <br>
+                                    <span class="text-muted">({{ user_obj.email }})</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin-user-update' pk=user_obj.id %}" class="btn btn-primary">
+                                        View
+                                    </a>
+                                    {% if user_obj.user_type.name == 'editor' %}
+                                        <a href="{% url 'admin-post-list' %}?editor={{ user_obj.first_name }}" class="btn btn-primary">
+                                            Views news
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
 
                 {% if page_obj|length > 1 %}
                     {% if page_obj.has_previous %}
@@ -54,17 +74,20 @@
                     {% endif%}
                 {% endif %}
             {% else %}
-
-                No Users
-
+               <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                    <h2 class="mt-5">
+                        There are no users
+                        <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                    </h2>
+                </div>
             {% endif %}
         </div>
         <div class="col-md-2">
             <form method="GET" class="d-flex">
-                <table class="table">
+                <table class="table table-bordered">
                   <thead>
                     <tr>
-                      <th>Filter</th>
+                      <th class="text-center">Filter</th>
                     </tr>
                   </thead>
                   <tbody>

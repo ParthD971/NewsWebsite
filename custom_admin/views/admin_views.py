@@ -61,7 +61,7 @@ class AdminUserListView(GroupRequiredMixin, ListView):
         return context
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_superuser=False)
+        queryset = super().get_queryset().exclude(id=self.request.user.id)
 
         search = self.request.GET.get('search', '')
         if search.strip():
@@ -455,7 +455,6 @@ class AdminManagerCommentListView(GroupRequiredMixin, ListView):
             paginator_class=self.paginator_class,
             paginate_by=self.paginate_by
         )
-
         return context
 
 
@@ -487,7 +486,7 @@ class AdminSendNotificationView(GroupRequiredMixin, View):
 
     def get(self, request):
         context = {
-            'users': User.objects.all().exclude(id=request.user.id)
+            'users': User.objects.all().exclude(is_superuser=True)
         }
         return render(
             request,

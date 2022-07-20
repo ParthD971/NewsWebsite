@@ -6,17 +6,17 @@
 <div class="container my-3">
     <div class="row">
     {% if notification_types %}
-        <div class="col">
-            <table class="table">
+        <div class="col-md-4">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th scope="col">Name</th>
+                    <th scope="col">Notification Type</th>
                 </tr>
               </thead>
                 <tbody>
                     {% for notification_type in notification_types %}
                         <tr>
-                          <td>{{ notification_type.name }}</td>
+                          <td>{{ notification_type.name|title }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -49,9 +49,12 @@
         </div>
     </div>
     {% else %}
-
-        No Notification Types
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There are no notification types
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

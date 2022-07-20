@@ -18,15 +18,31 @@
     <div class="row">
         <div class="col-md-10">
             {% if posts %}
-                <ul>
-                    {% for post in posts %}
-                        <li>
-                            <a href="{% url 'manager-post-update' pk=post.id %}">
-                                {{ post }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Post</th>
+                            <th scope="col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                            <tr>
+                                <td>
+                                    <span>{{ post.title|truncatechars:20 }}</span> <br>
+                                    <span class="text-muted">{{ post.created_on }}</span> <br>
+                                    <span class="text-muted">By: {{ post.author_display_name }}({{ post.author.email }})</span>
+                                </td>
+                                <td>
+                                    <a href="{% url 'manager-post-update' pk=post.id %}" class="btn btn-primary">
+                                        Update
+                                    </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
                 {% if page_obj|length > 1 %}
                     {% if page_obj.has_previous %}
                         <a href="{% url 'manager-post-list' %}?page={{ page_obj.previous_page_number }}">
@@ -54,7 +70,7 @@
             {% else %}
                 <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
                     <h2 class="mt-5">
-                        There is no posts
+                        There are no posts
                         <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
                     </h2>
                 </div>
@@ -62,10 +78,10 @@
         </div>
         <div class="col-md-2">
             <form method="GET" class="d-flex">
-                <table class="table">
+                <table class="table table-bordered">
                   <thead>
                     <tr>
-                      <th>Filter</th>
+                      <th class="text-center">Filter</th>
                     </tr>
                   </thead>
                   <tbody>

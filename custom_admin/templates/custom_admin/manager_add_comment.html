@@ -1,20 +1,15 @@
-{% extends "news_blog/base.html" %}
-
-{% block title %}
-
-    {{ user.user_type|title }} Panel
-
-{% endblock %}
+{% extends "custom_admin/manager_home_page.html" %}
+{% load crispy_forms_filters %}
 
 {% block css %}{% endblock %}
 
 {% block body %}
     <div class="container my-3">
-        {% load crispy_forms_tags %}
         <form method = "POST">
             {% csrf_token %}
             {{ form|crispy }}
-            <input type="submit" value="Save">
+            <input type="submit" value="Comment" class="btn btn-success">
+        </form>
     </div>
 {% endblock %}
 

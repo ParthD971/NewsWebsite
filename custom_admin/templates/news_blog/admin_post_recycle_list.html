@@ -7,11 +7,11 @@
     <div class="row">
     {% if post_recycles %}
         <div class="col">
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th scope="col">Post Title</th>
-                    <th scope="col">Recycl Created On</th>
+                    <th scope="col">Deleted On</th>
                     <th scope="col">Deleted By</th>
                 </tr>
               </thead>
@@ -20,7 +20,7 @@
                         <tr>
                           <td>{{ post_recycle.post.title }}</td>
                           <td>{{ post_recycle.recycle_created_on }}</td>
-                          <td>{{ post_recycle.deleted_by.first_name }}</td>
+                          <td>{{ post_recycle.deleted_by.first_name }}<br><span class="text-muted">{{ post_recycle.deleted_by.email }}</span></td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -53,9 +53,12 @@
         </div>
     </div>
     {% else %}
-
-        No Post Recycles
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There are no deleted post
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

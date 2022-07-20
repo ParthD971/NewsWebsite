@@ -1,16 +1,74 @@
 {% extends "custom_admin/manager_home_page.html" %}
+{% load crispy_forms_filters %}
 
 {% block css %}{% endblock %}
 
 {% block body %}
     <div class="container my-3">
-        {% load crispy_forms_tags %}
-        <form method = "POST">
-            {% csrf_token %}
-            {{ form|crispy }}
-            <input type="submit" value="Save">
-        </form>
+        <div class="row my-3">
+            <div class="col">
+                <h3>User Detail</h3>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td>First Name</td>
+                            <td>{{ object.first_name }}</td>
+                        </tr>
+                        <tr>
+                            <td>Last Name</td>
+                            <td>{% if object.last_name %}{{ object.lastname }}{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Age</td>
+                            <td>{% if object.age %}{{ object.age }}{% else %}-{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>User Type</td>
+                            <td>{{ object.user_type.name }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-bordered">
+                    <tbody>
+                        <tr>
+                            <td>Email</td>
+                            <td>{{ object.email }}</td>
+                        </tr>
+                        <tr>
+                            <td>Blocked</td>
+                            <td>{% if object.is_blocked %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Premium</td>
+                            <td>{% if object.is_premium_user %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                        <tr>
+                            <td>Active</td>
+                            <td>{% if object.is_active %}Yes{% else %}No{% endif %}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <form method = "POST">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <input type="submit" value="Update" class="btn btn-success">
+                </form>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
 {% block js %}{% endblock %}
+
+
+

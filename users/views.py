@@ -29,10 +29,8 @@ class LoginView(View):
         )
 
     def post(self, request):
-        print(request.POST)
         form = LoginForm(data=request.POST)
         is_valid = form.is_valid()
-        print(is_valid, '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
         if is_valid:
             email = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
@@ -40,6 +38,7 @@ class LoginView(View):
             if user is not None:
                 login(request, user)
                 messages.success(request, user_login_success(user.email))
+                print('redirect')
                 return redirect("home")
             messages.error(request, WRONG_CREDENTIALS)
             return render(
@@ -63,20 +62,13 @@ class RegisterView(View):
     def post(self, request):
         form = RegisterForm(request.POST)
         if form.is_valid():
-            try:
-                user = form.save()
-                # user = form.save(commit=False)
-                # user.user_type = UserType.objects.get(name='consumer')
-                # user.save()
-
-                to_email = user.email
-                send_email(request, user, to_email)
-
-                messages.success(request, VERIFY_EMAIL)
-            except UserType.DoesNotExist as e:
-                messages.error(request, 'User type don\'t exists')
+            user = form.save()
+            to_email = user.email
+            send_email(request, user, to_email)
+            messages.success(request, VERIFY_EMAIL)
             return redirect("home")
         else:
+            print(form.errors)
             email = form.cleaned_data.get('email')
             query = None
             if email:

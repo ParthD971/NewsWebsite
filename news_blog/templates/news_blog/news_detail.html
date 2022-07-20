@@ -8,37 +8,41 @@
 
     <div class="container my-3">
         <div class="row">
-            <div class="col-md-10 mx-auto">
-                <div class="post-heading">
+            <div class="col-md-10 offset-md-1">
+                <div>
                     <h1>{{ post.title }}</h1>
                     <div>
-                        <img src="{{ post.image.url }}" class="img-fluid rounded-start" alt="News Image">
-                    </div>
+                        <figure class="figure">
+                            <img src="{{ post.image.url }}" class="figure-img img-fluid rounded" alt="News Image">
+                            <figcaption class="figure-caption">
+                                Author is
+                                <a href="{% url 'home' %}?author={{ post.author_display_name }}" style="text-decoration: none;">
+                                    {{ post.author_display_name }}
+                                </a>
+                                <strong>&#183;</strong>
+                                {% if post.is_older_than_seven_days %}
+                                    {{ post.created_on }}
+                                    {% else %}
+                                    {{ post.created_on|timesince }} ago
+                                {% endif %}
+                                <strong>&#183;</strong>
+                                {{ post.views }} views
 
-                    <span>
-                        Posted by
-                        <a href="{% url 'home' %}?author={{ post.author_display_name }}">
-
-                                {{ post.author_display_name }}
-
-                        </a>
-
-                        on {{ post.created_on }} (<i class="fa fa-eye"></i> {{ post.views }})
-                    </span>
-
-                    <div>
-                        {% if user.is_authenticated and user.user_type == 'consumer' %}
-                            {% if following %}
-                                <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}">Unfollow</a>
-                            {% else %}
-                                <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}">Follow</a>
-                            {% endif %}
-                        {% endif %}
+                                {% if user.is_authenticated and user.user_type.name == 'consumer' %}
+                                    <strong>&#183;</strong>
+                                    {% if following %}
+                                        <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}" class="btn-sm btn-danger" style="text-decoration: none;">Unfollow</a>
+                                    {% else %}
+                                        <a href="{% url 'follow' pk=post.id %}?author_id={{ post.author.id }}&author_name={{ post.author_display_name }}" class="btn-sm btn-success" style="text-decoration: none;">Follow</a>
+                                    {% endif %}
+                                {% endif %}
+                            </figcaption>
+                        </figure>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="row">
+        <div class="row mb-5">
             <div class="col-md-10 mx-auto">
                 <hr>
                 {{ post.content }}

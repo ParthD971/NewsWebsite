@@ -7,7 +7,7 @@
     <div class="row">
     {% if post_status_records %}
         <div class="col">
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th scope="col">Changed By</th>
@@ -19,9 +19,9 @@
                 <tbody>
                     {% for post_status_record in post_status_records %}
                         <tr>
-                            <td>{{ post_status_record.changed_by.first_name }}</td>
-                            <td>{{ post_status_record.post.title }}</td>
-                            <td>{{ post_status_record.status.name }}</td>
+                            <td>{{ post_status_record.changed_by.first_name }}<br><span class="text-muted">{{ post_status_record.changed_by.email }}</span></td>
+                            <td>{{ post_status_record.post.title|truncatechars:20 }}</td>
+                            <td>{{ post_status_record.status.name|title }}</td>
                             <td>{{ post_status_record.changed_on }}</td>
                         </tr>
                     {% endfor %}
@@ -55,9 +55,12 @@
         </div>
     </div>
     {% else %}
-
-        No post status records
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There are no post status records
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

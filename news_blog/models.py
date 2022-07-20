@@ -2,7 +2,7 @@ from django.db import models
 from users.models import CustomUser as User
 from .constants import POST_TYPE_CHOICES, POST_IMAGE_UPLOAD_TO, DEFAULT_IMAGE_PATH
 from django.utils import timezone
-
+import datetime
 
 class Categorie(models.Model):
     name = models.CharField(max_length=50, unique=True, blank=False, null=False)
@@ -45,6 +45,9 @@ class Post(models.Model):
     
     def __str__(self):
         return ' | '.join([str(self.author), str(self.title), str(self.status)])
+
+    def is_older_than_seven_days(self):
+        return (datetime.date.today() - self.created_on).days > 1
 
 
 class PCMiddle(models.Model):

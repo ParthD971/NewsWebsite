@@ -7,7 +7,7 @@
     <div class="row">
     {% if pcmiddles %}
         <div class="col">
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th scope="col">Post Title</th>
@@ -18,7 +18,7 @@
                     {% for pcmiddle in pcmiddles %}
                         <tr>
                           <td>{{ pcmiddle.post.title }}</td>
-                          <td>{{ pcmiddle.category.name }}</td>
+                          <td>{{ pcmiddle.category.name|title }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -51,9 +51,12 @@
         </div>
     </div>
     {% else %}
-
-        No PCMiddles
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There are no PCMiddles
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

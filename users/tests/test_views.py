@@ -1,11 +1,14 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+
+from users.constants import WRONG_CREDENTIALS
 from users.models import CustomUser as User, UserType
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from users.token import account_activation_token
 from django.contrib.auth.models import Group
 from django.core import mail
+import pytest
 
 
 class TestUsersViews(TestCase):
@@ -162,3 +165,42 @@ class TestUsersViews(TestCase):
         self.assertRedirects(response, self.home_url, status_code=302,
                              target_status_code=200, msg_prefix='',
                              fetch_redirect_response=True)
+
+
+class TestBug1(object):
+
+    @pytest.mark.django_db
+    def test_login_view_post_with_wrong_credentials(self, client):
+
+        response = client.post(reverse('login'), {'email': 'fake@fake.com', 'password': 'parth2000'})
+        assert response.status_code == 200
+        messages = list(response.context['messages'])
+        assert len(messages) == 1
+        assert str(messages[0]) == WRONG_CREDENTIALS
+
+    @pytest.mark.django_db
+    @pytest.mark.xfail
+    def test_register_view_post(self, client, create_user_types, create_groups):
+        response = client.post(reverse('register'),
+                               {'email': 'desaiparth971@gmail.com',
+                                'password1': 'parth2000',
+                                'password2': 'parth2000'
+                                })
+        assert response.status_code == 302
+
+        response = client.post(reverse('register'),
+                               {'email': 'desaiparth971@gmail.com',
+                                'password1': 'parth2000',
+                                'password2': 'parth'
+                                })
+        assert response.status_code == 200
+
+    @pytest.mark.django_db
+    def test_activate_email_get(self, client):
+        user = User.objects.create_user(email='desaiparth971@gmail.com', password='Parth@2000')
+        uidb64 = urlsafe_base64_encode(force_bytes(12))
+        token = account_activation_token.make_token(user)
+        activate = reverse('activate', args=[uidb64, token])
+        response = client.get(activate)
+        assert response.status_code == 302
+

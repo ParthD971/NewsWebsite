@@ -37,7 +37,7 @@
 {#          {% if user.user_type.name == 'editor' or user.user_type.name == 'manager' %}#}
           {% if user.is_authenticated and user.user_type.name != 'admin' %}
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="{% url 'notification-from-admin' %}">Notification from Admin</a>
+              <a class="nav-link active" aria-current="page" href="{% url 'notification-from-admin' %}">Notification</a>
             </li>
           {% endif %}
 {#          {% endif %}#}
@@ -50,9 +50,6 @@
                     {% if user.user_type.name == 'manager' %}
                         <li class="nav-item">
                           <a class="nav-link active" aria-current="page" href="{% url 'manager-panel' %}">Manager Panel</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link active" aria-current="page" href="{% url 'run-scraper' %}">Scrap Data</a>
                         </li>
                     {% elif user.user_type.name == 'editor' %}
                         <li class="nav-item">

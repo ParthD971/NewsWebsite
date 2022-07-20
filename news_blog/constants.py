@@ -25,7 +25,7 @@ POST_TYPE_CHOICES = [
 ]
 DEFAULT_IMAGE_NAME = 'default.jpg'
 POST_IMAGE_UPLOAD_TO = 'news_images/'
-DEFAULT_IMAGE_PATH = DEFAULT_IMAGE_NAME + POST_IMAGE_UPLOAD_TO
+DEFAULT_IMAGE_PATH = POST_IMAGE_UPLOAD_TO + DEFAULT_IMAGE_NAME
 
 # news_blog.forms.ManagerApplicationForm
 CHECK_BOX_LABEL = 'I have read and agree the terms and conditions.'

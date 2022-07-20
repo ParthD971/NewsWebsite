@@ -1,18 +1,6 @@
 {% extends "custom_admin/admin_main_page.html" %}
 
 {% block css %}
-
-    <style>
-        tr:hover {
-            background: #e1e1e1;
-            cursor: pointer;
-        }
-        td a {
-            display: block;
-            text-decoration: none;
-        }
-    </style>
-
 {% endblock %}
 
 
@@ -32,24 +20,26 @@
     <div class="row">
         <div class="col-md-10">
             {% if notifications %}
-                <table class="table">
+                <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th scope="col">Notification Type</th>
                             <th scope="col">User Name</th>
+                            <th scope="col">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for noti in notifications %}
                             <tr>
                                 <td>
-                                    <a href="{% url 'admin-application-notification-update' pk=noti.id %}">
-                                        {{ noti.notification_type }}
-                                    </a>
+                                    {{ noti.notification_type|title }}
                                 </td>
                                 <td>
-                                    <a href="{% url 'admin-application-notification-update' pk=noti.id %}">
-                                        {{ noti.user.first_name }}
+                                    {{ noti.user.first_name }}
+                                </td>
+                                <td>
+                                    <a href="{% url 'admin-application-notification-update' pk=noti.id %}" class="btn btn-primary">
+                                        View
                                     </a>
                                 </td>
                             </tr>
@@ -84,7 +74,7 @@
             {% else %}
                 <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
                     <h2 class="mt-5">
-                        There is no notifications
+                        There is no application notifications
                         <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
                     </h2>
                 </div>
@@ -92,10 +82,10 @@
         </div>
         <div class="col-md-2">
             <form method="GET" class="d-flex">
-                <table class="table">
+                <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>Filter</th>
+                            <th class="text-center">Filter</th>
                         </tr>
                     </thead>
                     <tbody>

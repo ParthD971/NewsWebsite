@@ -9,3 +9,5 @@ create
 Stripe key will expire after 90 days from 4/7/22
 
 mail_send and validate_mail not working in office wifi
+
+what if user is consumer and he follows some editor and then apply for editor/manager.

@@ -1,10 +1,4 @@
-{% extends "news_blog/base.html" %}
-
-{% block title %}
-
-    {{ user.user_type|title }} Panel
-
-{% endblock %}
+{% extends "custom_admin/editor_main_page.html" %}
 
 {% block css %}{% endblock %}
 
@@ -12,9 +6,9 @@
     <div class="container my-3">
         {% if comments %}
                 {% with comments|first as comment %}
-                    Comments on <u>{{ comment.post.title }}</u>
+                        <h5 class="text-center my-3">Comments on <strong><u>{{ comment.post.title }}</u></strong></h5>
                 {% endwith %}
-                <table class="table">
+                <table class="table table-bordered">
                   <thead>
                     <tr>
                       <th scope="col">Manager</th>
@@ -24,7 +18,10 @@
                   <tbody>
                       {% for comment in comments %}
                         <tr>
-                          <td>{{ comment.manager.first_name }}</td>
+                          <td>
+                              {{ comment.manager.first_name }} <br>
+                              (<span class="text-muted">{{ comment.manager.email }}</span>)
+                          </td>
                           <td>{{ comment.comment }}</td>
                         </tr>
                       {% endfor %}
@@ -58,7 +55,12 @@
             {% endif %}
         {% else %}
 
-            No Comments
+            <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+                <h2 class="mt-5">
+                    There are no comments
+                    <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+                </h2>
+            </div>
 
         {% endif %}
     </div>

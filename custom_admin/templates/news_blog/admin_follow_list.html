@@ -7,20 +7,20 @@
     <div class="row">
     {% if follows %}
         <div class="col">
-            <table class="table">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
                     <th scope="col">Author</th>
                     <th scope="col">User</th>
-                    <th scope="col">Author Display Name</th>
+                    <th scope="col">Author display name</th>
                 </tr>
               </thead>
                 <tbody>
                     {% for follow in follows %}
                         <tr>
-                            <td>{% if not follow.author %}-{% else %}{{ follow.author.first_name }}{% endif %}</td>
-                            <td>{{ follow.user.first_name }}</td>
-                            <td>{{ follow.author_name }}</td>
+                            <td>{% if follow.author %}{{ follow.author.first_name }}<br><span class="text-muted">{{ follow.author.email }}</span>{% else %}-{% endif %}</td>
+                            <td>{{ follow.user.first_name }}<br><span class="text-muted">{{ follow.user.email }}</span></td>
+                            <td>{{ follow.author_name|title }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -53,9 +53,12 @@
         </div>
     </div>
     {% else %}
-
-        No Follows
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There are no Follows
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

@@ -6,17 +6,17 @@
 <div class="container my-3">
     <div class="row">
     {% if notification_statuses %}
-        <div class="col">
-            <table class="table">
+        <div class="col-md-4">
+            <table class="table table-bordered">
                 <thead>
                 <tr>
-                    <th scope="col">Name</th>
+                    <th scope="col">Notification Status</th>
                 </tr>
               </thead>
                 <tbody>
                     {% for notification_status in notification_statuses %}
                         <tr>
-                          <td>{{ notification_status.name }}</td>
+                          <td>{{ notification_status.name|title }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
@@ -49,9 +49,12 @@
         </div>
     </div>
     {% else %}
-
-        No Notification Statuses
-
+        <div class="h-100 p-5 text-white bg-dark rounded-3 text-center">
+            <h2 class="mt-5">
+                There is no notification status
+                <i class="fa fa-exclamation-circle" style="font-size:36px"></i>
+            </h2>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

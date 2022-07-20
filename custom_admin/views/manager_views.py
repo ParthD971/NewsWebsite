@@ -163,8 +163,6 @@ class ManagerPostUpdateView(GroupRequiredMixin, UpdateView):
             elif new_status == 'rejected':
                 if old_status == 'pending':
                     pass
-            elif new_status == 'pending':
-                pass
 
             # if status changed then update record
             PostStatusRecord(
